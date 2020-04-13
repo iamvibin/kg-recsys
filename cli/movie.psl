@@ -1,4 +1,4 @@
 10 : Rating(User, Item1) & Relation(Item1, Relation, Item2) & Blocking(User,
-Item1) & Blocking(User, Item2) & Item1!=Item2 -> Rating(User, Item2)
+Item1) & Blocking(User, Item2) & Item1!=Item2 -> Rating(User, Item2) ^2
 
 1: !Rating(User, Item) ^2

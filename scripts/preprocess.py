@@ -55,6 +55,7 @@ def convert_rating():
 
     print('converting rating file ...')
     writer = open('../data/' + DATASET + '/ratings_final.txt', 'w', encoding='utf-8')
+    blockingWriter = open('../data/' + DATASET + '/blocking_obs.txt', 'w', encoding='utf-8')
     user_cnt = 0
     user_index_old2new = dict()
     for user_index_old, pos_item_set in user_pos_ratings.items():
@@ -65,12 +66,15 @@ def convert_rating():
 
         for item in pos_item_set:
             writer.write('%d\t%d\t1\n' % (user_index, item))
+            blockingWriter.write('%d\t%d\n' % (user_index, item))
         unwatched_set = item_set - pos_item_set
         if user_index_old in user_neg_ratings:
             unwatched_set -= user_neg_ratings[user_index_old]
         for item in np.random.choice(list(unwatched_set), size=len(pos_item_set), replace=False):
             writer.write('%d\t%d\t0\n' % (user_index, item))
+            blockingWriter.write('%d\t%d\n' % (user_index, item))
     writer.close()
+    blockingWriter.close()
     print('number of users: %d' % user_cnt)
     print('number of items: %d' % len(item_set))
 

@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     train_size = int(round(len(lines) * ratio, 0))
     count = 0
-    order = random.sample(range(0, train_size), train_size)
+    order = random.sample(range(0, len(lines)), len(lines))
 
     for i in order:
         line = lines[i]
@@ -38,7 +38,6 @@ if __name__ == '__main__':
             targetWriter.write('%d\t%d\n' % (user_index, item_index))
             truthWriter.write('%d\t%d\t%f\n' % (user_index, item_index, rating))
 
-    inputFile.close()
     observationWriter.close()
     truthWriter.close()
     targetWriter.close()
