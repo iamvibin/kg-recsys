@@ -4,12 +4,12 @@ predicates:
   Blocking/2: closed
 
 observations:
-  Rating: ../data/music/ratings_obs.txt
-  Relation: ../data/music/relations_obs.txt
-  Blocking: ../data/music/blocking_obs.txt
+  Rating: ../data/movie/ratings_obs.txt
+  Relation: ../data/movie/relations_obs.txt
+  Blocking: ../data/movie/blocking_obs.txt
 
 targets:
-  Rating: ../data/music/ratings_target.txt
+  Rating: ../data/movie/ratings_target.txt
 
 truth:
-  Rating: ../data/music/ratings_truth.txt
+  Rating: ../data/movie/ratings_truth.txt
