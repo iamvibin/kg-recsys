@@ -1,0 +1,21 @@
+
+# System files #
+################
+.DS_Store
+
+# metadata #
+####################
+.classpath
+.project
+.settings
+
+# Editor temporary #
+####################
+*.swp
+
+*.jar
+*-learned.psl
+
+out.txt
+out.err
+
