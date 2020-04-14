@@ -271,7 +271,7 @@ def get_sim_items(userCount):
             if user in user_movie_ratings:
                 items = user_movie_ratings[user]
                 if item not in items:
-                    simMoviesWriter.write('%d\t%d\t1\n' % (user_index, item_index))
+                    simMoviesWriter.write('%d\t%d\t1\n' % (user, item))
 
     simMoviesWriter.close()
 
