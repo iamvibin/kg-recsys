@@ -292,7 +292,7 @@ if __name__ == '__main__':
     user_cnt = convert_rating()
     convert_kg()
     data_split()
-    #get_sim_users()
+    get_sim_users()
     get_sim_items(user_cnt)
 
     print('done')
