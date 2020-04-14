@@ -225,7 +225,7 @@ def get_sim_users():
             if userlist[i] == user_id:
                 continue
             else:
-                simUserWriter.write('%d\t%d\n' % (user_id, userlist[i]))
+                simUserWriter.write('%d\t%d\t1\n' % (user_id, userlist[i]))
 
     simUserWriter.close()
 
