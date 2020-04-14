@@ -147,7 +147,7 @@ def data_split():
     observationWriter = open('../data/' + DATASET + '/ratings_obs.txt', 'w', encoding='utf-8')
     targetWriter = open('../data/' + DATASET + '/ratings_target.txt', 'w', encoding='utf-8')
     truthWriter = open('../data/' + DATASET + '/ratings_truth.txt', 'w', encoding='utf-8')
-    simItemsWriter = open('../data/' + DATASET + '/simItem_obs.txt', 'w', encoding='utf-8')
+    simItemsWriter = open('../data/' + DATASET + '/ratings_scores_obs.txt', 'w', encoding='utf-8')
 
     lines = []
     for line in open(inputFile, encoding='utf-8').readlines()[1:]:
@@ -208,7 +208,7 @@ def get_sim_users():
     k = 10
     metric = 'cosine'
 
-    inputFile = '../data/' + DATASET + '/' + 'simItem_obs.txt'
+    inputFile = '../data/' + DATASET + '/' + 'ratings_scores_obs.txt'
 
     df = pd.read_csv(inputFile, sep="\t", header=None)
     df.rename(columns={0: 'users', 1: 'items', 2: 'ratings'}, inplace=True)
@@ -218,12 +218,14 @@ def get_sim_users():
 
     for user_id in users:
         similarities, indices = findkSimilarUsers(user_id, userItemMatrix, metric, k)
-        for i in range(0, len(indices.flatten())):
+        userlist = list(indices.flatten())
 
-            if indices.flatten()[i] == user_id:
+        for i in range(0, len(userlist)):
+
+            if userlist[i] == user_id:
                 continue
             else:
-                simUserWriter.write('%d\t%d\n' % (user_id, indices.flatten()[i]))
+                simUserWriter.write('%d\t%d\n' % (user_id, userlist[i]))
 
     simUserWriter.close()
 
@@ -236,12 +238,13 @@ def aggregate(x):
 def get_sim_items(userCount):
     print('getting similar Highly Rated Items and generating pairs ... ')
     simMoviesWriter = open('../data/' + DATASET + '/simRatedItems.txt', 'w', encoding='utf-8')
-    inputFile = '../data/' + DATASET + '/' + 'simItem_obs.txt'
+    inputFile = '../data/' + DATASET + '/' + 'ratings_scores_obs.txt'
+    data = '../data/' + DATASET + '/' + 'ratings_scores.txt'
 
     user_movie_ratings = dict()
 
-    for line in open(inputFile, encoding='utf-8').readlines()[1:]:
-        array = line.strip().split(SEP[DATASET])
+    for line in open(data, encoding='utf-8').readlines()[1:]:
+        array = line.strip().split('\t')
 
         item_index = int(array[1])
         user_index = int(array[0])
@@ -260,6 +263,8 @@ def get_sim_items(userCount):
 
     desiredMovieIds = agg[agg['ratings'] > 0]
     itemIds = list(desiredMovieIds.index.values)
+    print(user_cnt)
+    print(len(itemIds))
 
     for user in range(0, userCount):
         for item in itemIds:
@@ -287,7 +292,7 @@ if __name__ == '__main__':
     user_cnt = convert_rating()
     convert_kg()
     data_split()
-    get_sim_users()
+    #get_sim_users()
     get_sim_items(user_cnt)
 
     print('done')
