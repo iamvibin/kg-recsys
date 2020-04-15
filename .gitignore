@@ -12,6 +12,8 @@
 # Editor temporary #
 ####################
 *.swp
+*.ipynb_checkpoints
+*.ipynb
 
 *.jar
 *-learned.psl
