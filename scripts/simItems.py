@@ -14,7 +14,7 @@ SIM_ITEM_OUTPUT_FILE = 'sim_items_50_obs.txt'
 
 
 
-inputpath = os.path.join('..','Data',Dataset,INPUT_FILE)
+inputpath = os.path.join('..','data',Dataset,INPUT_FILE)
 df = readfile(inputpath)
 
 R_df = df.pivot(index = 'users', columns ='items', values = 'ratings').fillna(0)
