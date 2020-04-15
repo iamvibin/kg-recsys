@@ -31,7 +31,7 @@ item_sim_matrix = np.dot(np.transpose(Vt), Vt)
 similar_users = np.argpartition(user_sim_matrix, np.argmin(user_sim_matrix, axis=0))[:, -51:]
 similar_items = np.argpartition(item_sim_matrix, np.argmin(item_sim_matrix, axis=0))[:, -51:]
 
-outputpath = os.path.join('..','Data',Dataset,SIM_USER_OUTPUT_FILE)
+outputpath = os.path.join('..','data',Dataset,SIM_USER_OUTPUT_FILE)
 row, col = similar_users.shape
 with open(outputpath, 'w') as sim_user_writer:
     for user in range(0,row):
@@ -41,7 +41,7 @@ with open(outputpath, 'w') as sim_user_writer:
             else:
                 sim_user_writer.write('%d\t%d\t1\n' % (user, similar_users[user][c_index]) )
 
-outputpath = os.path.join('..','Data',Dataset,SIM_ITEM_OUTPUT_FILE)
+outputpath = os.path.join('..','data',Dataset,SIM_ITEM_OUTPUT_FILE)
 row, col = similar_items.shape
 with open(outputpath, 'w') as sim_item_writer:
     for item in range(0,row):
