@@ -7,7 +7,7 @@ def readfile(path):
     df = pd.read_csv(path, delimiter = "\t", header=None, names=["users", "items", "ratings"])
     return df
 
-Dataset = 'Movie'
+Dataset = 'movie'
 INPUT_FILE = 'ratings_scores.txt'
 SIM_USER_OUTPUT_FILE = 'sim_users_50_obs.txt'
 SIM_ITEM_OUTPUT_FILE = 'sim_items_50_obs.txt'
