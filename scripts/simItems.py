@@ -49,4 +49,4 @@ with open(outputpath, 'w') as sim_item_writer:
             if similar_items[item][c_index]==item:
                 continue
             else:
-                sim_item_writer.write('%d\t%d\t1\n' % (user, similar_items[item][c_index]) )
+                sim_item_writer.write('%d\t%d\t1\n' % (item, similar_items[item][c_index]) )
