@@ -150,8 +150,9 @@ def data_split():
     simItemsWriter = open('../data/' + DATASET + '/ratings_scores_obs.txt', 'w', encoding='utf-8')
 
     lines = []
-    for line in open(inputFile, encoding='utf-8').readlines()[1:]:
+    for line in open(inputFile, encoding='utf-8').readlines()[0:]:
         lines.append(line)
+    print(len(lines))
 
     train_size = int(round(len(lines) * ratio, 0))
     print(train_size)
@@ -292,7 +293,7 @@ if __name__ == '__main__':
     user_cnt = convert_rating()
     convert_kg()
     data_split()
-    get_sim_users()
-    get_sim_items(user_cnt)
+    #get_sim_users()
+    #get_sim_items(user_cnt)
 
     print('done')
