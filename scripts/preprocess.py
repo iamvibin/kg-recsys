@@ -34,7 +34,7 @@ def convert_rating():
 
     user_movie_ratings = dict()
 
-    for line in open(file, encoding='utf-8').readlines()[1:]:
+    for line in open(file, encoding='utf-8').readlines()[0:]:
         array = line.strip().split(SEP[DATASET])
 
         # remove prefix and suffix quotation marks for BX dataset
