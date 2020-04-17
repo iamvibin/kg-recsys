@@ -3,12 +3,14 @@ predicates:
   Blocking/2: closed
   SimilarUsers/2: closed
   SimilarItems/2: closed
+  Relation/3: closed
   
 observations:
   Rating: ../data/movie/ratings_obs.txt
   Blocking: ../data/movie/blocking_obs.txt
   SimilarUsers: ../data/movie/sim_users_50_obs.txt
   SimilarItems: ../data/movie/sim_items_50_obs.txt
+  Relation: ../data/movie/relations_obs.txt
 
 targets:
   Rating: ../data/movie/ratings_target.txt

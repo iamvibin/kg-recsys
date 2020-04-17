@@ -82,7 +82,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=''' Get ROC_AUC  Scores''')
 
     parser.add_argument('--truth', type=str, dest='truth_file', default='../data/movie/ratings_truth.txt')
-    parser.add_argument('--predictions', type=str, dest='prediction_file', default='../movie/RATING.txt')
+    parser.add_argument('--predictions', type=str, dest='prediction_file', default='../data/movie/RATING.txt')
 
     parsed_args = parser.parse_args()
 

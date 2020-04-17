@@ -10,4 +10,5 @@
 //10: HighRatedUserMovie(user1, item) & HighRatedUserMovie(user2, item) & SimilarUsers(user1, user2) -> Rating(user2, item) 
 10: Rating(User, Item1) & SimilarItems(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
 10: Rating(User1, Item) & SimilarUsers(User1, User2) & Blocking(User1, Item) & Blocking(User2, Item) -> Rating(User2, Item) ^2
+10: Rating(User, Item1) & Relation(Item1, relation, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
 1: !Rating(User, Item) ^2
