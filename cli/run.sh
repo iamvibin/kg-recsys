@@ -9,6 +9,7 @@ readonly JAR_PATH="./psl-cli-${PSL_VERSION}.jar"
 readonly BASE_NAME='movie'
 
 readonly ADDITIONAL_PSL_OPTIONS='--int-ids --postgres -D log4j.threshold=TRACE'
+readonly ADDITIONAL_LEARN_OPTIONS='--learn'
 readonly ADDITIONAL_EVAL_OPTIONS='--infer --eval ContinuousEvaluator'
 
 function main() {
@@ -21,10 +22,31 @@ function main() {
    fetch_psl
 
    # Run PSL
-   runEvaluation "$@"
+   #runWeightLearning "$@"
+   #runEvaluation "$@"
+   runEvaluationWithoutWL "$@"
+}
+function runWeightLearning() {
+   echo "Running PSL Weight Learning"
+
+   java -jar "${JAR_PATH}" --model "${BASE_NAME}.psl" --data "${BASE_NAME}-learn.data" ${ADDITIONAL_LEARN_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
+   if [[ "$?" -ne 0 ]]; then
+      echo 'ERROR: Failed to run weight learning'
+      exit 60
+   fi
 }
 
 function runEvaluation() {
+   echo "Running PSL Inference"
+
+   java -jar "${JAR_PATH}" --model "${BASE_NAME}-learned.psl" --data "${BASE_NAME}-eval.data" --output inferred-predicates ${ADDITIONAL_EVAL_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
+   if [[ "$?" -ne 0 ]]; then
+      echo 'ERROR: Failed to run infernce'
+      exit 70
+   fi
+}
+
+function runEvaluationWithoutWL() {
    echo "Running PSL Inference"
 
    java -jar "${JAR_PATH}" --model "${BASE_NAME}.psl" --data "${BASE_NAME}.data" --output inferred-predicates ${ADDITIONAL_EVAL_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"

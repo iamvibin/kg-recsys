@@ -1,6 +1,7 @@
 import argparse
 import numpy as np
 import pandas as pd
+import os
 import random
 from sklearn.neighbors import NearestNeighbors
 
@@ -277,6 +278,72 @@ def get_sim_items(userCount):
     simMoviesWriter.close()
 
 
+def get_relations():
+    print('Converting kg.txt into its respective relation files.')
+    FOLDER = '../data'
+    DATASET = 'movie'
+    RELATIONS = 'relations'
+    INPUT_FILE = 'kg.txt'
+    entity_cnt = len(entity_id2index)
+    relation_cnt = 0
+
+    input_path = os.path.join(FOLDER, DATASET, INPUT_FILE)
+    output_folder_path = os.path.join(FOLDER, DATASET, RELATIONS)
+
+    relations_dict = {}
+    relations_map = {}
+    file_writer = {}
+    print('creating a file writer set')
+    with open(input_path, 'r', encoding="utf-8") as file:
+        for line in file:
+            array = line.strip().split('\t')
+            head_old = array[0]
+            relation_old = array[1]
+            tail_old = array[2]
+
+            if head_old not in entity_id2index:
+                continue
+            head = entity_id2index[head_old]
+
+            if tail_old not in entity_id2index:
+                entity_id2index[tail_old] = entity_cnt
+                entity_cnt += 1
+            tail = entity_id2index[tail_old]
+
+            if relation_old not in relation_id2index:
+                relation_id2index[relation_old] = relation_cnt
+                relation_cnt += 1
+            relation = relation_id2index[relation_old]
+
+            filename = relation_old.strip().split('.')[2]
+
+            if filename not in relations_map:
+                relations_map[relation] = filename
+                output_file = filename + '.txt'
+                output_file_path = os.path.join(output_folder_path, output_file)
+                writer = open(output_file_path, 'w', encoding='utf-8')
+                file_writer[relation] = writer
+
+            if filename not in relations_dict:
+                relations_dict[filename] = set()
+
+            text = str(head) + '\t' + str(tail)
+            relations_dict[filename].add(text)
+
+    for relation, writer in file_writer.items():
+        filename = relations_map[relation]
+        wr = file_writer[relation]
+        text_set = relations_dict[filename]
+        print('No of lines being written %s', filename, len(text_set))
+        for text in text_set:
+            h2t = text + '\n'
+            a = text.strip().split('\t')
+            t2h = a[1] + '\t' + a[0] + '\n'
+            wr.write(h2t)
+            wr.write(t2h)
+        wr.close()
+
+
 if __name__ == '__main__':
     np.random.seed(555)
 
@@ -293,6 +360,7 @@ if __name__ == '__main__':
     user_cnt = convert_rating()
     convert_kg()
     data_split()
+    get_relations()
     #get_sim_users()
     #get_sim_items(user_cnt)
 

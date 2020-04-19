@@ -20,4 +20,13 @@
 
 out.txt
 out.err
+inferred-predicates/
+.txt
+
+# Compiled sources #
+####################
+target
+classpath.out
+dependency-reduced-pom.xml
+
 
