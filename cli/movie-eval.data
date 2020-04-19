@@ -1,0 +1,31 @@
+predicates:
+  Rating/2: open
+  Blocking/2: closed
+  SimilarUsers/2: closed
+  SimilarItems/2: closed
+  Country/2: Closed
+  Director/2: Closed
+  Genre/2: Closed
+  Language/2: Closed
+  Rated/2: Closed
+  Star/2: Closed
+  Writer/2: Closed
+
+observations:
+  Rating: ../data/movie/ratings_obs.txt
+  Blocking: ../data/movie/blocking_obs.txt
+  SimilarUsers: ../data/movie/sim_users_50_obs.txt
+  SimilarItems: ../data/movie/sim_items_50_obs.txt
+  Country: ../data/movie/relations/country.txt
+  Director: ../data/movie/relations/director.txt
+  Genre: ../data/movie/relations/genre.txt
+  Language: ../data/movie/relations/language.txt
+  Rated: ../data/movie/relations/rating.txt
+  Star: ../data/movie/relations/star.txt
+  Writer: ../data/movie/relations/writer.txt
+
+targets:
+  Rating: ../data/movie/ratings_target.txt
+
+truth:
+  Rating: ../data/movie/ratings_truth.txt
