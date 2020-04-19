@@ -3,13 +3,13 @@ predicates:
   Blocking/2: closed
   SimilarUsers/2: closed
   SimilarItems/2: closed
-  Country/2: Closed
-  Director/2: Closed
-  Genre/2: Closed
-  Language/2: Closed
-  Rated/2: Closed
-  Star/2: Closed
-  Writer/2: Closed
+  Country/2: closed
+  Director/2: closed
+  Genre/2: closed
+  Language/2: closed
+  Rated/2: closed
+  Star/2: closed
+  Writer/2: closed
 
 observations:
   Rating: ../data/movie/ratings_obs.txt
