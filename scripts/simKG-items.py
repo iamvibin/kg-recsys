@@ -51,6 +51,8 @@ matrix = obs_df.values
 full_matrix = full_df.values
 # storing the known user item interactions
 dictionary = {}
+
+row, col = full_matrix.shape
 for index in range(0, row):
     user = full_matrix[index][0]
     item = full_matrix[index][1]
