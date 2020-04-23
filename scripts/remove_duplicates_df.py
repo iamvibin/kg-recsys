@@ -15,7 +15,7 @@ target_inputpath = os.path.join('..', 'data', Dataset, INPUT_FILE)
 
 target_outputpath = os.path.join('..', 'data', Dataset, OUTPUT_FILE)
 
-target_df = readfile(targetpath)
+target_df = readfile(target_inputpath)
 
 print(' before', target_df.shape)
 
