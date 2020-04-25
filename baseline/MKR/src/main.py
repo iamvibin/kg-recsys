@@ -49,7 +49,7 @@ parser.add_argument('--kge_interval', type=int, default=2, help='training interv
 '''
 
 show_loss = False
-show_topk = False
+show_topk = True
 
 args = parser.parse_args()
 data = load_data(args)

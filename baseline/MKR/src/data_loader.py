@@ -5,9 +5,24 @@ import os
 def load_data(args):
     n_user, n_item, train_data, eval_data, test_data = load_rating(args)
     n_entity, n_relation, kg = load_kg(args)
+    DATASET = args.dataset
+    TARGET_FILE = 'ratings_target.txt'
+    TARGET_FILE_PATH = os.path.join('..', 'data', DATASET, TARGET_FILE)
+
+    user_set = set()
+    user_item_dict = {}
+    with open(TARGET_FILE_PATH, 'r', encoding="utf-8") as file:
+        for line in file:
+            array = line.strip().split('\t')
+            user = int(array[0])
+            item = int(array[1])
+            user_set.add(user)
+            if user not in user_item_dict:
+                user_item_dict[user] = set()
+            user_item_dict[user].add(item)
     print('data loaded.')
 
-    return n_user, n_item, n_entity, n_relation, train_data, eval_data, test_data, kg
+    return n_user, n_item, n_entity, n_relation, train_data, eval_data, test_data, kg, user_set, user_item_dict
 
 
 def load_rating(args):
