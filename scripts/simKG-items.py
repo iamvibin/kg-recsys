@@ -97,7 +97,7 @@ with open(outputpath, 'w') as writer:
                         itemlist = np.asarray(each_sample_item)
 
                     itemlist = itemlist.reshape(-1, 1)
-                    possiblepairs = np.array(np.meshgrid(userlist, itemlist)).reshape(-1, 2)
+                    possiblepairs = np.dstack(np.meshgrid(userlist, itemlist)).reshape(-1, 2)
                     r, c = possiblepairs.shape
 
                     for i in range(0, r):

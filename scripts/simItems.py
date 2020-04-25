@@ -13,7 +13,7 @@ Dataset = 'movie'
 INPUT_FILE = 'ratings_scores_obs.txt'
 SIM_USER_OUTPUT_FILE = 'sim_users_50_obs.txt'
 SIM_ITEM_OUTPUT_FILE = 'sim_items_50_obs.txt'
-
+nearest_neighbour = 20
 inputpath = os.path.join('..', 'data', Dataset, INPUT_FILE)
 df = readfile(inputpath)
 
@@ -23,13 +23,14 @@ R = R_df.values
 user_ratings_mean = np.mean(R, axis=1)
 
 R_demeaned = R - user_ratings_mean.reshape(-1, 1)
-U, sigma, Vt = svds(R_demeaned, k=50)
+U, sigma, Vt = svds(R_demeaned, k=nearest_neighbour)
 
 user_sim_matrix = np.dot(U, np.transpose(U))
 item_sim_matrix = np.dot(np.transpose(Vt), Vt)
 
-similar_users = np.argpartition(user_sim_matrix, np.argmin(user_sim_matrix, axis=0))[:, -51:]
-similar_items = np.argpartition(item_sim_matrix, np.argmin(item_sim_matrix, axis=0))[:, -51:]
+idx = -nearest_neighbour - 1
+similar_users = np.argpartition(user_sim_matrix, np.argmin(user_sim_matrix, axis=0))[:, idx:]
+similar_items = np.argpartition(item_sim_matrix, np.argmin(item_sim_matrix, axis=0))[:, idx:]
 
 outputpath = os.path.join('..', 'data', Dataset, SIM_USER_OUTPUT_FILE)
 row, col = similar_users.shape
@@ -91,7 +92,7 @@ with open(outputpath, 'w') as writer:
             userlist = userlist.reshape(-1, 1)
             itemlist = similar_items[int(item)][:]
             itemlist = itemlist.reshape(-1, 1)
-            possiblepairs = np.array(np.meshgrid(userlist, itemlist)).reshape(-1, 2)
+            possiblepairs = np.dstack(np.meshgrid(userlist, itemlist)).reshape(-1, 2)
             r, c = possiblepairs.shape
 
             for i in range(0, r):
@@ -106,4 +107,3 @@ with open(outputpath, 'w') as writer:
                     dictionary[newuser] = {}
                 writer.write('%d\t%d\n' % (newuser, newmovie))
                 dictionary[newuser][newmovie] = 0
-
