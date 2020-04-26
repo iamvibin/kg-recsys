@@ -37,9 +37,9 @@ for i in range(0, r):
     item = truth_matrix[i][1]
     ratings = truth_matrix[i][2]
 
+    if user not in truth_dict:
+        truth_dict[user] = set()
     if ratings >= threshold:
-        if user not in truth_dict:
-            truth_dict[user] = set()
         truth_dict[user].add(item)
 
 target_dict = {}
@@ -50,9 +50,10 @@ for i in range(0, r):
     item = target_matrix[i][1]
     ratings = target_matrix[i][2]
 
+
+    if user not in target_dict:
+        target_dict[user] = set()
     if ratings >= threshold:
-        if user not in target_dict:
-            target_dict[user] = set()
         target_dict[user].add(tuple([item, ratings]))
 
 precision_list = []
@@ -64,8 +65,8 @@ for k in k_set:
     relevant_item_count = 0
     recommended_item_count = 0
     for user, truth_set in truth_dict.items():
-        if user not in target_dict:
-            continue
+        #if user not in target_dict:
+        #    continue
         prediction_set = target_dict[user]
         prediction_list = list(prediction_set)
         prediction_list.sort(key=operator.itemgetter(1), reverse=True)
