@@ -10,7 +10,7 @@ def readfile(path):
     return df
 
 Dataset = 'movie'
-neighbours = 50
+neighbours = 40 #20 #50
 INPUT_FILE = 'ratings_scores_obs.txt'
 INPUT_KG_FILE = 'relations_obs.txt'
 SIM_USER_OUTPUT_FILE = 'sim_users_50_obs.txt'

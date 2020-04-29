@@ -70,8 +70,8 @@ for k in k_set:
         prediction_set = target_dict[user]
         prediction_list = list(prediction_set)
         prediction_list.sort(key=operator.itemgetter(1), reverse=True)
-
-        for i in range(0, min(k, len(prediction_list))):
+        
+        for i in range(0, len(prediction_list)):
             item = prediction_list[i][0]
             if item in truth_set:
                 item_count += 1
