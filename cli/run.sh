@@ -26,13 +26,13 @@ function main() {
    echo stat
    echo $1
    echo $splitId
-   gsed -i "s/split/${splitId}/g" ${BASE_NAME}.data
+   sed -i "s/split/${splitId}/g" ${BASE_NAME}.data
 
    # Run PSL
    #runWeightLearning "$@"
    #runEvaluation "$@"
    runEvaluationWithoutWL "$@"
-   gsed -i "s/${splitId}/split/g" ${BASE_NAME}.data
+   sed -i "s/${splitId}/split/g" ${BASE_NAME}.data
 }
 function runWeightLearning() {
    echo "Running PSL Weight Learning"
@@ -57,7 +57,7 @@ function runEvaluation() {
 function runEvaluationWithoutWL() {
    echo "Running PSL Inference"
 
-   java -jar "${JAR_PATH}" --model "${BASE_NAME}.psl" --data "${BASE_NAME}.data" --output inferred-predicates/$splitId ${ADDITIONAL_EVAL_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
+   java -Xmx${JAVA_MEM_GB}G -Xms${JAVA_MEM_GB}G -jar "${JAR_PATH}" --model "${BASE_NAME}.psl" --data "${BASE_NAME}.data" --output inferred-predicates/$splitId ${ADDITIONAL_EVAL_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
    if [[ "$?" -ne 0 ]]; then
       echo 'ERROR: Failed to run infernce'
       exit 70
