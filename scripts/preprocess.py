@@ -1,4 +1,3 @@
-import argparse
 import numpy as np
 import os
 import random
@@ -265,7 +264,7 @@ def get_relations(DATASET):
 
 
 def preprocess(args):
-    np.random.seed(555)
+    np.random.seed(args.s)
     DATASET = args.d
 
     read_item_index_to_entity_id_file(DATASET)

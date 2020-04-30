@@ -44,6 +44,7 @@ for split in range(0, splits):
         iter += 1
         folder_name = str(neighbour) + '_' + str(split)
         new_path = os.path.join(path, '..', 'data', DATASET, folder_name)
+        args.n = neighbour
 
         try:
             if not os.path.isfile(path):
