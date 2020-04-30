@@ -29,7 +29,7 @@ args = parser.parse_args()
 
 DATASET = args.d
 splits = 1
-neighbours = [1]
+neighbours = [5, 10, 20]
 count = splits * len(neighbours)
 seed_list = random.sample(range(0, 2**32-1), count)
 iter = 0
