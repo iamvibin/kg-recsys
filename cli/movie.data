@@ -7,15 +7,15 @@ predicates:
   LocalClassifier/2: closed 
 
 observations:
-  Rating: ../data/movie/ratings_obs.txt
-  Blocking: ../data/movie/blocking_obs.txt
-  SimilarUsers: ../data/movie/sim_users_50_obs.txt
-  SimilarItems: ../data/movie/sim_items_50_obs.txt
-  Relation: ../data/movie/relations_obs.txt
-  LocalClassifier: ../data/movie/baseline_filtered_output.txt
-  
+  Rating: ../data/movie/1_0/ratings_obs.txt
+  Blocking: ../data/movie/1_0/blocking_obs.txt
+  SimilarUsers: ../data/movie/1_0/sim_users_50_obs.txt
+  SimilarItems: ../data/movie/1_0/sim_items_50_obs.txt
+  Relation: ../data/movie/1_0/relations_obs.txt
+  LocalClassifier: ../data/movie/1_0/baseline_output.txt
+
 targets:
-  Rating: ../data/movie/ratings_target.txt
+  Rating: ../data/movie/1_0/ratings_target.txt
 
 truth:
-  Rating: ../data/movie/ratings_truth.txt
+  Rating: ../data/movie/1_0/ratings_truth.txt

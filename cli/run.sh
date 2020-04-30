@@ -7,8 +7,8 @@
 readonly PSL_VERSION='2.2.2'
 readonly JAR_PATH="./psl-cli-${PSL_VERSION}.jar"
 readonly BASE_NAME='movie'
-
-readonly ADDITIONAL_PSL_OPTIONS='--int-ids --postgres -D log4j.threshold=TRACE'
+readonly splitId=$1
+readonly ADDITIONAL_PSL_OPTIONS='--int-ids -D log4j.threshold=TRACE'
 readonly ADDITIONAL_LEARN_OPTIONS='--learn'
 readonly ADDITIONAL_EVAL_OPTIONS='--infer --eval ContinuousEvaluator'
 readonly AVAILABLE_MEM_KB=$(cat /proc/meminfo | grep 'MemTotal' | sed 's/^[^0-9]\+\([0-9]\+\)[^0-9]\+$/\1/')
@@ -23,11 +23,16 @@ function main() {
    # Make sure we can run PSL.
    check_requirements
    fetch_psl
+   echo stat
+   echo $1
+   echo $splitId
+   gsed -i "s/split/${splitId}/g" ${BASE_NAME}.data
 
    # Run PSL
    #runWeightLearning "$@"
    #runEvaluation "$@"
    runEvaluationWithoutWL "$@"
+   gsed -i "s/${splitId}/split/g" ${BASE_NAME}.data
 }
 function runWeightLearning() {
    echo "Running PSL Weight Learning"
@@ -52,7 +57,7 @@ function runEvaluation() {
 function runEvaluationWithoutWL() {
    echo "Running PSL Inference"
 
-   java -Xmx${JAVA_MEM_GB}G -Xms${JAVA_MEM_GB}G -jar "${JAR_PATH}" --model "${BASE_NAME}.psl" --data "${BASE_NAME}.data" --output inferred-predicates ${ADDITIONAL_EVAL_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
+   java -jar "${JAR_PATH}" --model "${BASE_NAME}.psl" --data "${BASE_NAME}.data" --output inferred-predicates/$splitId ${ADDITIONAL_EVAL_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
    if [[ "$?" -ne 0 ]]; then
       echo 'ERROR: Failed to run infernce'
       exit 70

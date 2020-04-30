@@ -18,5 +18,5 @@
 //10: Rating(User, Item1) & Rated(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
 //10: Rating(User, Item1) & Star(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
 //10: Rating(User, Item1) & Writer(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
-1: !Rating(User, Item) ^2
+5: !Rating(User, Item) ^2
 10: LocalClassifier(User, Item) -> Rating(User, Item) ^2

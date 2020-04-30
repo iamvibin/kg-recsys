@@ -1,9 +1,7 @@
 import argparse
 import numpy as np
-import pandas as pd
 import os
 import random
-from sklearn.neighbors import NearestNeighbors
 
 RATING_FILE_NAME = dict({'movie': 'ratings.dat',
                          'book': 'BX-Book-Ratings.csv',
@@ -11,9 +9,11 @@ RATING_FILE_NAME = dict({'movie': 'ratings.dat',
                          'news': 'ratings.txt'})
 SEP = dict({'movie': '::', 'book': ';', 'music': '\t', 'news': '\t'})
 THRESHOLD = dict({'movie': 4, 'book': 0, 'music': 0, 'news': 0})
+entity_id2index = dict()
+relation_id2index = dict()
+item_index_old2new = dict()
 
-
-def read_item_index_to_entity_id_file():
+def read_item_index_to_entity_id_file(DATASET):
     file = '../data/' + DATASET + '/item_index2entity_id.txt'
     print('reading item index to entity id file: ' + file + ' ...')
     i = 0
@@ -25,8 +25,8 @@ def read_item_index_to_entity_id_file():
         i += 1
 
 
-def convert_rating():
-    file = '../data/' + DATASET + '/' + RATING_FILE_NAME[DATASET]
+def convert_rating(DATASET):
+    file = '../data/' + DATASET + '/' + RATING_FILE_NAME[DATASET.split('/')[0]]
 
     print('reading rating file ...')
     item_set = set(item_index_old2new.values())
@@ -36,7 +36,7 @@ def convert_rating():
     user_movie_ratings = dict()
 
     for line in open(file, encoding='utf-8').readlines()[0:]:
-        array = line.strip().split(SEP[DATASET])
+        array = line.strip().split(SEP[DATASET.split('/')[0]])
 
         # remove prefix and suffix quotation marks for BX dataset
         if DATASET == 'book':
@@ -56,7 +56,7 @@ def convert_rating():
             user_movie_ratings[user_index_old] = {}
         user_movie_ratings[user_index_old][item_index] = rating
 
-        if rating >= THRESHOLD[DATASET]:
+        if rating >= THRESHOLD[DATASET.split('/')[0]]:
             if user_index_old not in user_pos_ratings:
                 user_pos_ratings[user_index_old] = set()
             user_pos_ratings[user_index_old].add(item_index)
@@ -103,12 +103,13 @@ def convert_rating():
     return user_cnt
 
 
-def convert_kg():
+def convert_kg(DATASET):
     print('converting kg.txt file ...')
     entity_cnt = len(entity_id2index)
     relation_cnt = 0
 
     writer = open('../data/' + DATASET + '/relations_obs.txt', 'w', encoding='utf-8')
+    kg_writer = open('../data/' + DATASET + '/kg_final.txt', 'w', encoding='utf-8')
     file = open('../data/' + DATASET + '/kg.txt', encoding='utf-8')
 
     for line in file:
@@ -132,14 +133,17 @@ def convert_kg():
         relation = relation_id2index[relation_old]
 
         writer.write('%d\t%d\t%d\n' % (head, relation, tail))
+        kg_writer.write('%d\t%d\t%d\n' % (head, relation, tail))
         writer.write('%d\t%d\t%d\n' % (tail, relation, head))
 
     writer.close()
+    kg_writer.close()
+    file.close()
     print('number of entities (containing items): %d' % entity_cnt)
     print('number of relations: %d' % relation_cnt)
 
 
-def data_split():
+def data_split(DATASET):
     print('spliting data into observed and target ...')
     ratio = 0.8
 
@@ -191,94 +195,10 @@ def data_split():
     observationWriter.close()
     truthWriter.close()
     targetWriter.close()
+    simItemsWriter.close()
 
 
-def findkSimilarUsers(user_id, ratings, metric, k):
-    similarities = []
-    indices = []
-    model_knn = NearestNeighbors(metric=metric, algorithm='brute')
-    model_knn.fit(ratings)
-
-    distances, indices = model_knn.kneighbors(ratings.iloc[user_id, :].values.reshape(1, -1), n_neighbors=k + 1)
-    similarities = 1 - distances.flatten()
-    return similarities, indices
-
-
-def get_sim_users():
-    print('getting similarUsers ... ')
-    simUserWriter = open('../data/' + DATASET + '/simUsers.txt', 'w', encoding='utf-8')
-    k = 10
-    metric = 'cosine'
-
-    inputFile = '../data/' + DATASET + '/' + 'ratings_scores_obs.txt'
-
-    df = pd.read_csv(inputFile, sep="\t", header=None)
-    df.rename(columns={0: 'users', 1: 'items', 2: 'ratings'}, inplace=True)
-    users = list(df['users'].unique())
-
-    userItemMatrix = df.groupby(['users', 'items']).size().unstack(fill_value=0)
-
-    for user_id in users:
-        similarities, indices = findkSimilarUsers(user_id, userItemMatrix, metric, k)
-        userlist = list(indices.flatten())
-
-        for i in range(0, len(userlist)):
-
-            if userlist[i] == user_id:
-                continue
-            else:
-                simUserWriter.write('%d\t%d\t1\n' % (user_id, userlist[i]))
-
-    simUserWriter.close()
-
-
-def aggregate(x):
-    vc = x.value_counts()
-    return vc.index[0]
-
-
-def get_sim_items(userCount):
-    print('getting similar Highly Rated Items and generating pairs ... ')
-    simMoviesWriter = open('../data/' + DATASET + '/simRatedItems.txt', 'w', encoding='utf-8')
-    inputFile = '../data/' + DATASET + '/' + 'ratings_scores_obs.txt'
-    data = '../data/' + DATASET + '/' + 'ratings_scores.txt'
-
-    user_movie_ratings = dict()
-
-    for line in open(data, encoding='utf-8').readlines()[1:]:
-        array = line.strip().split('\t')
-
-        item_index = int(array[1])
-        user_index = int(array[0])
-        rating = float(array[2])
-
-        # Storing obs user-movie ratings
-        if user_index not in user_movie_ratings:
-            user_movie_ratings[user_index] = set()
-        user_movie_ratings[user_index].add(item_index)
-        simMoviesWriter.write('%d\t%d\t1\n' % (user_index, item_index))
-
-    df = pd.read_csv(inputFile, sep="\t", header=None)
-    df.rename(columns={0: 'users', 1: 'items', 2: 'ratings'}, inplace=True)
-
-    agg = df.loc[:, ['items', 'ratings']].groupby(['items']).agg(aggregate)
-
-    desiredMovieIds = agg[agg['ratings'] > 0]
-    itemIds = list(desiredMovieIds.index.values)
-    print(user_cnt)
-    print(len(itemIds))
-
-    for user in range(0, userCount):
-        for item in itemIds:
-            if user in user_movie_ratings:
-                items = user_movie_ratings[user]
-                if item not in items:
-                    simMoviesWriter.write('%d\t%d\t1\n' % (user, item))
-
-    simMoviesWriter.close()
-
-
-def get_relations():
+def get_relations(DATASET):
     print('Converting kg.txt into its respective relation files.')
     FOLDER = '../data'
     DATASET = 'movie'
@@ -344,24 +264,14 @@ def get_relations():
         wr.close()
 
 
-if __name__ == '__main__':
+def preprocess(args):
     np.random.seed(555)
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-d', type=str, default='movie', help='which dataset to preprocess')
-    args = parser.parse_args()
     DATASET = args.d
 
-    entity_id2index = dict()
-    relation_id2index = dict()
-    item_index_old2new = dict()
-
-    read_item_index_to_entity_id_file()
-    user_cnt = convert_rating()
-    convert_kg()
-    data_split()
-    get_relations()
-    #get_sim_users()
-    #get_sim_items(user_cnt)
+    read_item_index_to_entity_id_file(DATASET)
+    user_cnt = convert_rating(DATASET)
+    convert_kg(DATASET)
+    data_split(DATASET)
+    #get_relations()
 
     print('done')
