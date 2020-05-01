@@ -111,11 +111,12 @@ with open(RESULT,'w') as writer:
             print(recall_list)
             print(f1_score_list)
 
-    writer.write('%d\t%d\t%f\t' % (neighbour, split, auc))
-    for listitem in precision_list:
-        writer.write('%f\t' % (listitem))
-    for listitem in recall_list:
-        writer.write('%f\t' % (listitem))
-    for listitem in f1_score_list:
-        writer.write('%f\t' % (listitem))
-    writer.write('\n')
+            writer.write('%d\t%d\t%f\t' % (neighbour, split, auc))
+            for listitem in precision_list:
+                writer.write('%f\t' % (listitem))
+            for listitem in recall_list:
+                writer.write('%f\t' % (listitem))
+            for listitem in f1_score_list:
+                writer.write('%f\t' % (listitem))
+            writer.write('\n')
+
