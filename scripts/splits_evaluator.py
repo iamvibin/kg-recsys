@@ -100,15 +100,16 @@ with open(RESULT,'w') as writer:
                 f1 = 2 / (1 / precision_list[i] + 1 / recall_list[i])
                 f1_score_list.append(f1)
 
-            print(precision_list)
-            print(recall_list)
-            print(f1_score_list)
+        print(precision_list)
+        print(recall_list)
+        print(f1_score_list)
 
-            writer.write('%d\t%d\t%f\t' % (neighbour, split, auc))
-            for listitem in precision_list:
-                writer.write('%f\t' % (listitem))
-            for listitem in recall_list:
-                writer.write('%f\t' % (listitem))
-            for listitem in f1_score_list:
-                writer.write('%f\t' % (listitem))
-            writer.write('\n')
+        writer.write('%d\t%d\t%f\t' % (neighbour, split, auc))
+        for listitem in precision_list:
+            writer.write('%f\t' % (listitem))
+        for listitem in recall_list:
+            writer.write('%f\t' % (listitem))
+        for listitem in f1_score_list:
+            writer.write('%f\t' % (listitem))
+        writer.write('\n')
+writer.close()
