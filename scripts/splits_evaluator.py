@@ -26,8 +26,9 @@ with open(RESULT,'w') as writer:
     for neighbour in neighbours:
         for split in range(0, splits):
             folder_name = str(neighbour) + '_' + str(split)
-            predictions_path = os.path.join('..', 'cli', 'inferred-predicates', folder_name, PREDICTIONS_FILE)
+
             truth_path = os.path.join('..', 'data', DATASET, folder_name, TRUTH_FILE)
+            predictions_path = os.path.join('..', 'cli', 'inferred-predicates', folder_name, PREDICTIONS_FILE)
 
             truth_df = readfile(truth_path)
             target_df = readfile(predictions_path)
@@ -38,8 +39,12 @@ with open(RESULT,'w') as writer:
             auc = roc_auc_score(y_true=labels, y_score=scores)
             print('auc is', auc)
 
+            # In[12]:
+
             truth_matrix = truth_df.values
             target_matrix = target_df.values
+
+            # In[13]:
 
             truth_dict = {}
             r, c = truth_matrix.shape
@@ -49,9 +54,9 @@ with open(RESULT,'w') as writer:
                 item = truth_matrix[i][1]
                 ratings = truth_matrix[i][2]
 
-                if user not in truth_dict:
-                    truth_dict[user] = set()
                 if ratings >= threshold:
+                    if user not in truth_dict:
+                        truth_dict[user] = set()
                     truth_dict[user].add(item)
 
             target_dict = {}
@@ -62,10 +67,12 @@ with open(RESULT,'w') as writer:
                 item = target_matrix[i][1]
                 ratings = target_matrix[i][2]
 
-                if user not in target_dict:
-                    target_dict[user] = set()
                 if ratings >= threshold:
+                    if user not in target_dict:
+                        target_dict[user] = set()
                     target_dict[user].add(tuple([item, ratings]))
+
+                    # In[14]:
 
             precision_list = []
             recall_list = []
@@ -76,13 +83,13 @@ with open(RESULT,'w') as writer:
                 relevant_item_count = 0
                 recommended_item_count = 0
                 for user, truth_set in truth_dict.items():
-                    # if user not in target_dict:
-                    #    continue
+                    if user not in target_dict:
+                        continue
                     prediction_set = target_dict[user]
                     prediction_list = list(prediction_set)
                     prediction_list.sort(key=operator.itemgetter(1), reverse=True)
 
-                    for i in range(0, len(prediction_list)):
+                    for i in range(0, min(k, len(prediction_list))):
                         item = prediction_list[i][0]
                         if item in truth_set:
                             item_count += 1
@@ -100,16 +107,15 @@ with open(RESULT,'w') as writer:
                 f1 = 2 / (1 / precision_list[i] + 1 / recall_list[i])
                 f1_score_list.append(f1)
 
-        print(precision_list)
-        print(recall_list)
-        print(f1_score_list)
+            print(precision_list)
+            print(recall_list)
+            print(f1_score_list)
 
-        writer.write('%d\t%d\t%f\t' % (neighbour, split, auc))
-        for listitem in precision_list:
-            writer.write('%f\t' % (listitem))
-        for listitem in recall_list:
-            writer.write('%f\t' % (listitem))
-        for listitem in f1_score_list:
-            writer.write('%f\t' % (listitem))
-        writer.write('\n')
-writer.close()
+    writer.write('%d\t%d\t%f\t' % (neighbour, split, auc))
+    for listitem in precision_list:
+        writer.write('%f\t' % (listitem))
+    for listitem in recall_list:
+        writer.write('%f\t' % (listitem))
+    for listitem in f1_score_list:
+        writer.write('%f\t' % (listitem))
+    writer.write('\n')
