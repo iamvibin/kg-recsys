@@ -61,6 +61,7 @@ for neighbour in neighbours:
                 os.mkdir(n_dir_path)
             args.i = split
             args.n = neighbour
+            args.s = seed_list[split]
             generate_user_item_pair(args)
             generate_blocking_target(args)
             data = {
