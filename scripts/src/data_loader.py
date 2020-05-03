@@ -5,41 +5,38 @@ import os
 def load_data(args):
     n_user, n_item, train_data, eval_data, test_data = load_rating(args)
     n_entity, n_relation, kg = load_kg(args)
-    DATASET = args.dataset
-    TARGET_FILE = 'ratings_target.txt'
-    TARGET_FILE_PATH = os.path.join('..', 'data', DATASET, TARGET_FILE)
 
-    user_set = set()
-    user_item_dict = {}
-    with open(TARGET_FILE_PATH, 'r', encoding="utf-8") as file:
-        for line in file:
-            array = line.strip().split('\t')
-            user = int(array[0])
-            item = int(array[1])
-            user_set.add(user)
-            if user not in user_item_dict:
-                user_item_dict[user] = set()
-            user_item_dict[user].add(item)
-    print('data loaded.')
-
-    return n_user, n_item, n_entity, n_relation, train_data, eval_data, test_data, kg, user_set, user_item_dict
+    return n_user, n_item, n_entity, n_relation, train_data, eval_data, test_data, kg
 
 
 def load_rating(args):
     print('reading rating file ...')
+    dir_name = args.out+'_'+str(args.i)
 
     # reading rating file
-    rating_file = '../data/' + args.dataset + '/ratings_final'
+    rating_file = os.path.join('..', 'data', args.dataset, dir_name, 'ratings_final.txt')
+    train_eval_file = os.path.join('..', 'data', args.dataset, dir_name, 'ratings_obs.txt')
+    test_file = os.path.join('..', 'data', args.dataset, dir_name, 'ratings_truth.txt')
     if os.path.exists(rating_file + '.npy'):
         rating_np = np.load(rating_file + '.npy')
     else:
-        print(rating_file)
-        rating_np = np.loadtxt(rating_file + '.txt', dtype=np.int32)
-        #np.save(rating_file + '.npy', rating_np)
-    print(rating_file)
+        rating_np = np.loadtxt(rating_file, dtype=np.int32)
+
     n_user = len(set(rating_np[:, 0]))
     n_item = len(set(rating_np[:, 1]))
-    train_data, eval_data, test_data = dataset_split(rating_np)
+
+    print('splitting dataset ...')
+
+    # train:eval:test = 6:2:2
+    eval_ratio = 0.25
+
+    train_eval_data = np.loadtxt(train_eval_file, dtype=np.int32)
+    test_data = np.loadtxt(test_file, dtype=np.int32)
+    train_eval_n = train_eval_data.shape[0]
+    eval_indices = np.random.choice(list(range(train_eval_n)), size=int(train_eval_n * eval_ratio), replace=False)
+    eval_data = train_eval_data[eval_indices]
+    train_indices = list(set(range(train_eval_n)) - set(eval_indices))
+    train_data = train_eval_data[train_indices]
 
     return n_user, n_item, train_data, eval_data, test_data
 
@@ -68,11 +65,12 @@ def load_kg(args):
     print('reading KG file ...')
 
     # reading kg file
-    kg_file = '../data/' + args.dataset + '/kg_final'
+    dir_name = args.out + '_' + str(args.i)
+    kg_file = os.path.join('..', 'data', args.dataset, dir_name, 'kg_final.txt')
     if os.path.exists(kg_file + '.npy'):
         kg = np.load(kg_file + '.npy')
     else:
-        kg = np.loadtxt(kg_file + '.txt', dtype=np.int32)
+        kg = np.loadtxt(kg_file, dtype=np.int32)
         #np.save(kg_file + '.npy', kg)
 
     n_entity = len(set(kg[:, 0]) | set(kg[:, 2]))

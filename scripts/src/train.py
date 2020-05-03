@@ -8,14 +8,12 @@ def train(args, data, show_loss, show_topk):
     n_user, n_item, n_entity, n_relation = data[0], data[1], data[2], data[3]
     train_data, eval_data, test_data = data[4], data[5], data[6]
     kg = data[7]
-    user_set = data[8]
-    user_item_dict = data[9]
 
     BASELINE_OUTPUT_FILE = 'baseline_output.txt'
     RESULT_OUTPUT_FILE = 'result.txt'
-    OUTPUT_PATH = os.path.join('..', 'data', args.dataset, BASELINE_OUTPUT_FILE)
-    RESULT_OUTPUT_PATH = os.path.join('..', 'data', args.dataset, RESULT_OUTPUT_FILE)
-    print(OUTPUT_PATH)
+    dir_name = args.out + '_' + str(args.i)
+
+    RESULT_OUTPUT_PATH = os.path.join('..', 'data', args.dataset, dir_name, RESULT_OUTPUT_FILE)
     tf.reset_default_graph()
     model = MKR(args, n_user, n_entity, n_entity, n_relation)
 
@@ -76,7 +74,7 @@ def train(args, data, show_loss, show_topk):
                     print('%.4f\t' % i, end='')
                 print('\n')'''
 
-        user_list = list(user_set)
+
 
         with open(RESULT_OUTPUT_PATH, 'w') as result_writer:
             result_writer.write('train_auc\t%.4f\n' % (train_auc))
@@ -99,18 +97,40 @@ def train(args, data, show_loss, show_topk):
 
         result_writer.close()
 
+        neighbours = args.list
 
-        with open(OUTPUT_PATH, 'w') as writer:
-            for user in user_list:
+        for neighbour in neighbours:
 
-                test_item_list = list(user_item_dict[user])
-                items, scores = model.get_scores(sess, {model.user_indices: [user] * len(test_item_list),
-                                                        model.item_indices: test_item_list,
-                                                        model.head_indices: test_item_list})
-                for item, score in zip(items, scores):
-                    writer.write('%d\t%d\t%f\n' % (user, item, score))
+            n_dir_name = str(neighbour).zfill(3)+'_'+str(args.i)
+            print('starting for split %s' % n_dir_name)
+            TARGET_FILE = 'ratings_target.txt'
+            TARGET_FILE_PATH = os.path.join('..', 'data', args.dataset, n_dir_name, TARGET_FILE)
 
-        writer.close()
+            user_set = set()
+            user_item_dict = {}
+            with open(TARGET_FILE_PATH, 'r', encoding="utf-8") as file:
+                for line in file:
+                    array = line.strip().split('\t')
+                    user = int(array[0])
+                    item = int(array[1])
+                    user_set.add(user)
+                    if user not in user_item_dict:
+                        user_item_dict[user] = set()
+                    user_item_dict[user].add(item)
+            print('data loaded for split %s.' % n_dir_name)
+
+            user_list = list(user_set)
+            OUTPUT_PATH = os.path.join('..', 'data', args.dataset, n_dir_name, BASELINE_OUTPUT_FILE)
+            with open(OUTPUT_PATH, 'w') as writer:
+                for user in user_list:
+
+                    test_item_list = list(user_item_dict[user])
+                    items, scores = model.get_scores(sess, {model.user_indices: [user] * len(test_item_list),
+                                                            model.item_indices: test_item_list,
+                                                            model.head_indices: test_item_list})
+                    for item, score in zip(items, scores):
+                        writer.write('%d\t%d\t%f\n' % (user, item, score))
+                print('baseline output for %s finished.' % n_dir_name)
 
 
 def get_feed_dict_for_rs(model, data, start, end):

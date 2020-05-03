@@ -12,8 +12,8 @@ entity_id2index = dict()
 relation_id2index = dict()
 item_index_old2new = dict()
 
-def read_item_index_to_entity_id_file(DATASET):
-    file = '../data/' + DATASET + '/item_index2entity_id.txt'
+def read_item_index_to_entity_id_file(args):
+    file = '../data/' + args.d + '/item_index2entity_id.txt'
     print('reading item index to entity id file: ' + file + ' ...')
     i = 0
     for line in open(file, encoding='utf-8').readlines():
@@ -24,8 +24,8 @@ def read_item_index_to_entity_id_file(DATASET):
         i += 1
 
 
-def convert_rating(DATASET):
-    file = '../data/' + DATASET + '/' + RATING_FILE_NAME[DATASET.split('/')[0]]
+def convert_rating(args):
+    file = '../data/' + args.d + '/' + RATING_FILE_NAME[args.d]
 
     print('reading rating file ...')
     item_set = set(item_index_old2new.values())
@@ -35,10 +35,10 @@ def convert_rating(DATASET):
     user_movie_ratings = dict()
 
     for line in open(file, encoding='utf-8').readlines()[0:]:
-        array = line.strip().split(SEP[DATASET.split('/')[0]])
+        array = line.strip().split(SEP[args.d])
 
         # remove prefix and suffix quotation marks for BX dataset
-        if DATASET == 'book':
+        if args.d == 'book':
             array = list(map(lambda x: x[1:-1], array))
 
         item_index_old = array[1]
@@ -55,7 +55,7 @@ def convert_rating(DATASET):
             user_movie_ratings[user_index_old] = {}
         user_movie_ratings[user_index_old][item_index] = rating
 
-        if rating >= THRESHOLD[DATASET.split('/')[0]]:
+        if rating >= THRESHOLD[args.d]:
             if user_index_old not in user_pos_ratings:
                 user_pos_ratings[user_index_old] = set()
             user_pos_ratings[user_index_old].add(item_index)
@@ -65,8 +65,9 @@ def convert_rating(DATASET):
             user_neg_ratings[user_index_old].add(item_index)
 
     print('converting rating file ...')
-    writer = open('../data/' + DATASET + '/ratings_final.txt', 'w', encoding='utf-8')
-    ratingWriter = open('../data/' + DATASET + '/ratings_scores.txt', 'w', encoding='utf-8')
+    dir_name = os.path.join(args.d, args.out+'_'+str(args.i))
+    writer = open('../data/' + dir_name+ '/ratings_final.txt', 'w', encoding='utf-8')
+    ratingWriter = open('../data/' + dir_name + '/ratings_scores.txt', 'w', encoding='utf-8')
 
     user_cnt = 0
     user_index_old2new = dict()
@@ -102,14 +103,21 @@ def convert_rating(DATASET):
     return user_cnt
 
 
-def convert_kg(DATASET):
+def convert_kg(args):
     print('converting kg.txt file ...')
     entity_cnt = len(entity_id2index)
     relation_cnt = 0
 
-    writer = open('../data/' + DATASET + '/relations_obs.txt', 'w', encoding='utf-8')
-    kg_writer = open('../data/' + DATASET + '/kg_final.txt', 'w', encoding='utf-8')
-    file = open('../data/' + DATASET + '/kg.txt', encoding='utf-8')
+    dir_name = args.out + '_' + str(args.i)
+    relations_path = os.path.join('..', 'data', args.d, dir_name, 'relations_obs.txt')
+    kg_path = os.path.join('..', 'data', args.d, dir_name, 'kg_final.txt')
+    kg_input_path = os.path.join('..', 'data', args.d, 'kg.txt')
+    print(kg_input_path)
+    print(kg_path)
+    print(relations_path)
+    writer = open(relations_path, 'w', encoding='utf-8')
+    kg_writer = open(kg_path, 'w', encoding='utf-8')
+    file = open(kg_input_path, encoding='utf-8')
 
     for line in file:
         array = line.strip().split('\t')
@@ -142,16 +150,17 @@ def convert_kg(DATASET):
     print('number of relations: %d' % relation_cnt)
 
 
-def data_split(DATASET):
+def data_split(args):
     print('spliting data into observed and target ...')
     ratio = 0.8
 
-    inputFile = '../data/' + DATASET + '/' + 'ratings_scores.txt'
+    dir_name = os.path.join(args.d, args.out + '_' + str(args.i))
+    inputFile = '../data/' + dir_name + '/' + 'ratings_scores.txt'
 
-    observationWriter = open('../data/' + DATASET + '/ratings_obs.txt', 'w', encoding='utf-8')
-    targetWriter = open('../data/' + DATASET + '/ratings_target.txt', 'w', encoding='utf-8')
-    truthWriter = open('../data/' + DATASET + '/ratings_truth.txt', 'w', encoding='utf-8')
-    simItemsWriter = open('../data/' + DATASET + '/ratings_scores_obs.txt', 'w', encoding='utf-8')
+    observationWriter = open('../data/' + dir_name + '/ratings_obs.txt', 'w', encoding='utf-8')
+    targetWriter = open('../data/' + dir_name + '/ratings_target.txt', 'w', encoding='utf-8')
+    truthWriter = open('../data/' + dir_name + '/ratings_truth.txt', 'w', encoding='utf-8')
+    #simItemsWriter = open('../data/' + dir_name + '/ratings_scores_obs.txt', 'w', encoding='utf-8')
 
     lines = []
     for line in open(inputFile, encoding='utf-8').readlines()[0:]:
@@ -161,6 +170,7 @@ def data_split(DATASET):
     train_size = int(round(len(lines) * ratio, 0))
     print(train_size)
     count = 0
+    random.seed(args.s)
     order = random.sample(range(0, len(lines)), len(lines))
 
     for i in order:
@@ -173,7 +183,7 @@ def data_split(DATASET):
         rating = float(array[2])
 
         if count < train_size:
-            simItemsWriter.write('%d\t%d\t%f\n' % (user_index, item_index, rating))
+            #simItemsWriter.write('%d\t%d\t%f\n' % (user_index, item_index, rating))
             if rating > 0:
                 rating = 1
             else:
@@ -194,7 +204,7 @@ def data_split(DATASET):
     observationWriter.close()
     truthWriter.close()
     targetWriter.close()
-    simItemsWriter.close()
+    #simItemsWriter.close()
 
 
 def get_relations(DATASET):
@@ -265,12 +275,11 @@ def get_relations(DATASET):
 
 def preprocess(args):
     np.random.seed(args.s)
-    DATASET = args.d
 
-    read_item_index_to_entity_id_file(DATASET)
-    user_cnt = convert_rating(DATASET)
-    convert_kg(DATASET)
-    data_split(DATASET)
+    read_item_index_to_entity_id_file(args)
+    user_cnt = convert_rating(args)
+    convert_kg(args)
+    data_split(args)
     #get_relations()
 
     print('done')

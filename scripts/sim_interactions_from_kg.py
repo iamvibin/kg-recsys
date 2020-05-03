@@ -13,25 +13,30 @@ def readfile(path):
 def generate_user_item_pair(args):
 
     Dataset = args.d
-    neighbours = args.n
+    neighbour = args.n
     threshold = args.t
+    split = args.i
+    dir_name = args.out+'_'+str(split)
+    n_dir_name = str(neighbour).zfill(3)+'_'+str(split)
 
     ALL_RATINGS_INPUT_FILE = 'ratings_scores.txt'
     INPUT_KG_FILE = 'relations_obs.txt'
     OBS_FILE = 'ratings_obs.txt'
-    SIM_USER_OUTPUT_FILE = 'sim_users_50_obs.txt'
-    SIM_ITEM_OUTPUT_FILE = 'sim_items_50_obs.txt'
+    SIM_USER_OUTPUT_FILE = 'sim_users_obs.txt'
+    SIM_ITEM_OUTPUT_FILE = 'sim_items_obs.txt'
 
     IMPLICIT_INTERACTIONS_FILE = 'generated_relations_from_ratings.txt'
     NEW_INTERACTIONS_FILE = 'generated_relations_from_kg.txt'
 
     # paths
-    ratings_inputpath = os.path.join('..', 'data', Dataset, ALL_RATINGS_INPUT_FILE)
-    obs_inputpath = os.path.join('..', 'data', Dataset, OBS_FILE)
-    kg_inputpath = os.path.join('..', 'data', Dataset, INPUT_KG_FILE)
-    full_inputpath = os.path.join('..', 'data', Dataset, ALL_RATINGS_INPUT_FILE)
-    implicit_sim_pair_file_path = os.path.join('..', 'data', Dataset, IMPLICIT_INTERACTIONS_FILE)
-    outputpath = os.path.join('..', 'data', Dataset, NEW_INTERACTIONS_FILE)
+    ratings_inputpath = os.path.join('..', 'data', Dataset, dir_name, ALL_RATINGS_INPUT_FILE)
+    obs_inputpath = os.path.join('..', 'data', Dataset, dir_name, OBS_FILE)
+    kg_inputpath = os.path.join('..', 'data', Dataset, dir_name, INPUT_KG_FILE)
+    full_inputpath = os.path.join('..', 'data', Dataset, dir_name, ALL_RATINGS_INPUT_FILE)
+    implicit_sim_pair_file_path = os.path.join('..', 'data', Dataset, n_dir_name, IMPLICIT_INTERACTIONS_FILE)
+    outputpath = os.path.join('..', 'data', Dataset, n_dir_name, NEW_INTERACTIONS_FILE)
+    uu_outputpath = os.path.join('..', 'data', Dataset, n_dir_name, SIM_USER_OUTPUT_FILE)
+    ii_outputpath = os.path.join('..', 'data', Dataset, n_dir_name, SIM_ITEM_OUTPUT_FILE)
 
     print("Calculating similar users and similar items from implicit ratings")
     df = readfile(ratings_inputpath)
@@ -42,17 +47,16 @@ def generate_user_item_pair(args):
     user_ratings_mean = np.mean(R, axis=1)
 
     R_demeaned = R - user_ratings_mean.reshape(-1, 1)
-    U, sigma, Vt = svds(R_demeaned, k=neighbours)
+    U, sigma, Vt = svds(R_demeaned, k=neighbour)
 
     user_sim_matrix = np.dot(U, np.transpose(U))
     item_sim_matrix = np.dot(np.transpose(Vt), Vt)
 
-    idx = -neighbours - 1
+    idx = -neighbour - 1
     similar_users = np.argpartition(user_sim_matrix, np.argmax(user_sim_matrix, axis=0))[:, idx:]
     similar_items = np.argpartition(item_sim_matrix, np.argmax(item_sim_matrix, axis=0))[:, idx:]
     item_limit, it = similar_items.shape
 
-    uu_outputpath = os.path.join('..', 'data', Dataset, SIM_USER_OUTPUT_FILE)
     row, col = similar_users.shape
     with open(uu_outputpath, 'w') as sim_user_writer:
         for user in range(0, row):
@@ -63,7 +67,6 @@ def generate_user_item_pair(args):
                     sim_user_writer.write('%d\t%d\t1\n' % (user, similar_users[user][c_index]))
     sim_user_writer.close()
 
-    ii_outputpath = os.path.join('..', 'data', Dataset, SIM_ITEM_OUTPUT_FILE)
     row, col = similar_items.shape
     with open(ii_outputpath, 'w') as sim_item_writer:
         for item in range(0, row):

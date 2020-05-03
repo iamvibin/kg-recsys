@@ -6,7 +6,6 @@ for neighbour in "${arr[@]}"
 do
   for split in $(seq 0 $splits);
   do
-    ./run.sh ${neighbour}_${split}
-   # or do whatever with individual element of the array
+    ./run.sh ${neighbour} ${split}
   done
 done

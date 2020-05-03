@@ -7,7 +7,10 @@
 readonly PSL_VERSION='2.2.2'
 readonly JAR_PATH="./psl-cli-${PSL_VERSION}.jar"
 readonly BASE_NAME='movie'
-readonly splitId=$1
+readonly baseline_id='000'
+readonly splitId=$2
+readonly neighbour=$1
+printf -v neighbour "%03d" $neighbour
 readonly ADDITIONAL_PSL_OPTIONS='--int-ids --postgres -D log4j.threshold=TRACE'
 readonly ADDITIONAL_LEARN_OPTIONS='--learn'
 readonly ADDITIONAL_EVAL_OPTIONS='--infer --eval ContinuousEvaluator'
@@ -26,13 +29,15 @@ function main() {
    echo stat
    echo $1
    echo $splitId
-   sed -i "s/split/${splitId}/g" ${BASE_NAME}.data
+   sed -i "s/baselineSplit/${baseline_id}_${splitId}/g" ${BASE_NAME}.data
+   sed -i "s/neighbourSplit/${neighbour}_${splitId}/g" ${BASE_NAME}.data
 
    # Run PSL
    #runWeightLearning "$@"
    #runEvaluation "$@"
    runEvaluationWithoutWL "$@"
-   sed -i "s/${splitId}/split/g" ${BASE_NAME}.data
+   sed -i "s/${baseline_id}_${splitId}/baselineSplit/g" ${BASE_NAME}.data
+   sed -i "s/${neighbour}_${splitId}/neighbourSplit/g" ${BASE_NAME}.data
 }
 function runWeightLearning() {
    echo "Running PSL Weight Learning"
@@ -57,7 +62,7 @@ function runEvaluation() {
 function runEvaluationWithoutWL() {
    echo "Running PSL Inference"
 
-   java -Xmx${JAVA_MEM_GB}G -Xms${JAVA_MEM_GB}G -jar "${JAR_PATH}" --model "${BASE_NAME}.psl" --data "${BASE_NAME}.data" --output inferred-predicates/$splitId ${ADDITIONAL_EVAL_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
+   java -Xmx${JAVA_MEM_GB}G -Xms${JAVA_MEM_GB}G -jar "${JAR_PATH}" --model "${BASE_NAME}.psl" --data "${BASE_NAME}.data" --output inferred-predicates/${neighbour}_$splitId ${ADDITIONAL_EVAL_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
    if [[ "$?" -ne 0 ]]; then
       echo 'ERROR: Failed to run infernce'
       exit 70
