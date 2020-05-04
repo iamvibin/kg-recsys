@@ -20,7 +20,7 @@ parser.add_argument('--list', type=list, default=[], help='list of neighbours')
 
 args = parser.parse_args()
 
-splits = 2
+splits = 10
 seed_list = random.sample(range(0, 2**32-1), splits)
 
 path = os.getcwd()
@@ -48,7 +48,7 @@ for split in range(0, splits):
     else:
         print("Successfully ran split %s " % dir_name)
 
-neighbours = [2, 5]
+neighbours = [2, 5, 10]
 
 for neighbour in neighbours:
     for split in range(0, splits):

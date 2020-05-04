@@ -9,7 +9,7 @@ readonly JAR_PATH="./psl-cli-${PSL_VERSION}.jar"
 readonly BASE_NAME='movie'
 readonly baseline_id='000'
 readonly splitId=$2
-readonly neighbour=$1
+neighbour=$1
 printf -v neighbour "%03d" $neighbour
 readonly ADDITIONAL_PSL_OPTIONS='--int-ids --postgres -D log4j.threshold=TRACE'
 readonly ADDITIONAL_LEARN_OPTIONS='--learn'

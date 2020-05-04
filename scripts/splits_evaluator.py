@@ -20,14 +20,14 @@ RESULT='results.txt'
 k_set = [1, 2, 5, 10, 20, 50, 100]
 threshold = 0.8
 splits = 10
-neighbours = [5, 10]
+neighbours = [10]
 
 with open(RESULT,'w') as writer:
     for neighbour in neighbours:
         for split in range(0, splits):
-            folder_name = str(neighbour) + '_' + str(split)
-
-            truth_path = os.path.join('..', 'data', DATASET, folder_name, TRUTH_FILE)
+            folder_name = str(neighbour).zfill(3) + '_' + str(split)
+            truth_folder_name = '000'+ '_' + str(split)
+            truth_path = os.path.join('..', 'data', DATASET, truth_folder_name, TRUTH_FILE)
             predictions_path = os.path.join('..', 'cli', 'inferred-predicates', folder_name, PREDICTIONS_FILE)
 
             truth_df = readfile(truth_path)

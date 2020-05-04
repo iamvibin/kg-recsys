@@ -1,7 +1,7 @@
 #!/bin/bash
 
-declare -a arr=("1")
-splits=1
+declare -a arr=("2" "5" "10")
+splits=9
 for neighbour in "${arr[@]}"
 do
   for split in $(seq 0 $splits);
