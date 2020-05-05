@@ -11,6 +11,8 @@ def train(args, data, show_loss, show_topk):
 
     BASELINE_OUTPUT_FILE = 'baseline_output.txt'
     RESULT_OUTPUT_FILE = 'result.txt'
+    LABELS_FILE = 'labels.txt'
+    SCORES_FILE = 'scores.txt'
     dir_name = args.out + '_' + str(args.i)
 
     RESULT_OUTPUT_PATH = os.path.join('..', 'data', args.dataset, dir_name, RESULT_OUTPUT_FILE)
@@ -54,14 +56,14 @@ def train(args, data, show_loss, show_topk):
             eval_auc, eval_acc = model.eval(sess, get_feed_dict_for_rs(model, eval_data, 0, eval_data.shape[0]))
             test_auc, test_acc = model.eval(sess, get_feed_dict_for_rs(model, test_data, 0, test_data.shape[0]))
 
-            #print('epoch %d    train auc: %.4f  acc: %.4f    eval auc: %.4f  acc: %.4f    test auc: %.4f  acc: %.4f'
+            # print('epoch %d    train auc: %.4f  acc: %.4f    eval auc: %.4f  acc: %.4f    test auc: %.4f  acc: %.4f'
             #     % (step, train_auc, train_acc, eval_auc, eval_acc, test_auc, test_acc))
 
             # top-K evaluation
             if show_topk:
                 precision, recall, f1 = topk_eval(
                     sess, model, user_list, train_record, test_record, item_set, k_list)
-                '''print('precision: ', end='')
+                print('precision: ', end='')
                 for i in precision:
                     print('%.4f\t' % i, end='')
                 print()
@@ -72,10 +74,23 @@ def train(args, data, show_loss, show_topk):
                 print('f1: ', end='')
                 for i in f1:
                     print('%.4f\t' % i, end='')
-                print('\n')'''
+                print('\n')
 
+        print("Writing output of baseline for split %s ." % args.i)
+        labels, scores = sess.run([model.labels, model.scores_normalized],
+                                  get_feed_dict_for_rs(model, test_data, 0, test_data.shape[0]))
 
+        LABELS_OUTPUT_PATH = os.path.join('..', 'data', args.dataset, dir_name, LABELS_FILE)
+        SCORES_OUTPUT_PATH = os.path.join('..', 'data', args.dataset, dir_name, SCORES_FILE)
+        with open(LABELS_OUTPUT_PATH, 'w') as labelsWriter:
+            for i in labels:
+                labelsWriter.write(str(i) + '\n')
 
+        with open(SCORES_OUTPUT_PATH, 'w') as scoreWriter:
+            for i in scores:
+                scoreWriter.write(str(i) + '\n')
+        print('Baseline scores and labels written .')
+        '''
         with open(RESULT_OUTPUT_PATH, 'w') as result_writer:
             result_writer.write('train_auc\t%.4f\n' % (train_auc))
             result_writer.write('eval_auc\t%.4f\n' % (eval_auc))
@@ -95,14 +110,14 @@ def train(args, data, show_loss, show_topk):
                 result_writer.write(str(ele) + '\t')
             result_writer.write('\n')
 
-        result_writer.close()
+        result_writer.close()'''
 
         neighbours = args.list
 
         for neighbour in neighbours:
 
-            n_dir_name = str(neighbour).zfill(3)+'_'+str(args.i)
-            print('starting for split %s' % n_dir_name)
+            n_dir_name = str(neighbour).zfill(3) + '_' + str(args.i)
+            print('Writing Baseline output for split %s' % n_dir_name)
             TARGET_FILE = 'ratings_target.txt'
             TARGET_FILE_PATH = os.path.join('..', 'data', args.dataset, n_dir_name, TARGET_FILE)
 
@@ -117,7 +132,7 @@ def train(args, data, show_loss, show_topk):
                     if user not in user_item_dict:
                         user_item_dict[user] = set()
                     user_item_dict[user].add(item)
-            print('data loaded for split %s.' % n_dir_name)
+            print('Baseline output data loaded for split %s.' % n_dir_name)
 
             user_list = list(user_set)
             OUTPUT_PATH = os.path.join('..', 'data', args.dataset, n_dir_name, BASELINE_OUTPUT_FILE)

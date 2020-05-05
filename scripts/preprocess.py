@@ -112,9 +112,6 @@ def convert_kg(args):
     relations_path = os.path.join('..', 'data', args.d, dir_name, 'relations_obs.txt')
     kg_path = os.path.join('..', 'data', args.d, dir_name, 'kg_final.txt')
     kg_input_path = os.path.join('..', 'data', args.d, 'kg.txt')
-    print(kg_input_path)
-    print(kg_path)
-    print(relations_path)
     writer = open(relations_path, 'w', encoding='utf-8')
     kg_writer = open(kg_path, 'w', encoding='utf-8')
     file = open(kg_input_path, encoding='utf-8')
@@ -275,7 +272,6 @@ def get_relations(DATASET):
 
 def preprocess(args):
     np.random.seed(args.s)
-
     read_item_index_to_entity_id_file(args)
     user_cnt = convert_rating(args)
     convert_kg(args)

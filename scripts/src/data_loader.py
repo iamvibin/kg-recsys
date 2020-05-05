@@ -25,7 +25,7 @@ def load_rating(args):
     n_user = len(set(rating_np[:, 0]))
     n_item = len(set(rating_np[:, 1]))
 
-    print('splitting dataset ...')
+    print('splitting dataset into train, eval & test...')
 
     # train:eval:test = 6:2:2
     eval_ratio = 0.25

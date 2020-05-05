@@ -27,6 +27,7 @@ path = os.getcwd()
 data_path = os.path.join(path, '..', 'data', args.d)
 
 neighbours = [2, 5, 10]
+print('Creating splits for the baseline....')
 for split in range(0, splits):
     dir_name = args.out+'_'+str(split)
     dir_path = os.path.join(data_path, dir_name)
@@ -42,14 +43,14 @@ for split in range(0, splits):
             'Random seed': args.s
         }
         with open(os.path.join(dir_path, 'config.json'), 'w') as outfile:
-            json.dump(data, outfile)
+            json.dump(data, outfile, indent=4)
     except OSError:
-        print("Failed run on split %s" % dir_name)
+        print("Failed run on creating split %s" % dir_name)
     else:
-        print("Successfully ran split %s " % dir_name)
+        print("Successfully created split %s " % dir_name)
 
-neighbours = [2, 5, 10]
 
+print("Creating data for PSL.")
 for neighbour in neighbours:
     for split in range(0, splits):
         dir_name = args.out+'_'+str(split)
@@ -70,18 +71,20 @@ for neighbour in neighbours:
                 'Random seed': args.s
             }
             with open(os.path.join(n_dir_path, 'config.json'), 'w') as outfile:
-                json.dump(data, outfile)
+                json.dump(data, outfile, indent=4)
 
         except OSError:
-            print("Failed run on split %s" % dir_name)
+            print("Failed run on creating split %s ." % n_dir_name)
         else:
-            print("Successfully ran split %s " % dir_name)
+            print("Successfully created split %s ." % n_dir_name)
 
 
 for split in range(0, splits):
     args.i = split
+    print("Starting baseline on split %s" % str(split))
     args.s = seed_list[split]
     args.list = neighbours
     startBaseline(args)
+    print("Finished on split %s" % str(split))
 
 

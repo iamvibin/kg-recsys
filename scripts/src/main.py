@@ -61,16 +61,16 @@ parser.add_argument('--list', type=list, default=[], help='list of neighbours')
 '''
 
 show_loss = False
-show_topk = True
+show_topk = False
 
 args = parser.parse_args()
 
 
 def startBaseline(arguments):
-    print("starting baseline")
     np.random.seed(arguments.s)
     args.dataset = arguments.d
     args.list = arguments.list
     args.i=arguments.i
+    print("Starting baseline on split %s" % str(args.i))
     data = load_data(args)
     train(args, data, show_loss, show_topk)
