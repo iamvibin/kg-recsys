@@ -16,7 +16,7 @@ BASELINE_PREDICTION_FILE = 'scores.txt'
 RESULT = 'results.txt'
 k_set = [1, 2, 5, 10, 20, 50, 100]
 threshold = 0.8
-splits = 2
+splits = 10
 neighbours = [2, 5, 10]
 
 def readfile(path):
