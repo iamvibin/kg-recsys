@@ -1,13 +1,19 @@
 import os
 import random
+import pandas as pd
 import argparse
-import shutil
+from data_reformat import reformat
 import json
 from preprocess import preprocess
+from preprocess import generate_similar_pair
+import numpy as np
+from scipy.stats import wishart
+from BPMF.recommend.bpmf import BPMF
+from BPMF.recommend.utils.evaluation import RMSE
+from run_bpmf import run_baseline
 from sim_interactions_from_kg import generate_user_item_pair
 from generate_blocking_target import generate_blocking_target
 from src.main import startBaseline
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--d', type=str, default='movie', help='which dataset to use')
@@ -17,10 +23,14 @@ parser.add_argument('--s', type=int, default=555, help='seed value')
 parser.add_argument('--i', type=int, default=0, help='running on split')
 parser.add_argument('--out', type=str, default='000', help='default directory')
 parser.add_argument('--list', type=list, default=[], help='list of neighbours')
+parser.add_argument('--type', type=str, default='eval', help='list of neighbours')
 
 args = parser.parse_args()
-
-splits = 10
+EVAL = 'eval'
+TRAIN = 'train'
+type = [EVAL, TRAIN]
+args.tuning = True
+splits = 2
 seed_list = random.sample(range(0, 2**32-1), splits)
 
 path = os.getcwd()
@@ -28,17 +38,23 @@ data_path = os.path.join(path, '..', 'data', args.d)
 
 neighbours = [2, 5, 10]
 print('Creating splits for the baseline....')
+
+entity_id2index ,relation_id2index, item_index_old2new = reformat(args)
+
 for split in range(0, splits):
     dir_name = args.out+'_'+str(split)
     dir_path = os.path.join(data_path, dir_name)
     try:
         if not os.path.isfile(dir_path):
             os.mkdir(dir_path)
+            os.mkdir(os.path.join(dir_path, TRAIN))
+            os.mkdir(os.path.join(dir_path, EVAL))
         args.s = seed_list[split]
         args.i = split
         preprocess(args)
 
         data = {
+            'val_percentage' : '20%',
             'test_percentage': '20%',
             'Random seed': args.s
         }
@@ -49,7 +65,18 @@ for split in range(0, splits):
     else:
         print("Successfully created split %s " % dir_name)
 
+for neighbour in neighbours:
+    args.n = neighbour
+    generate_similar_pair(args)
 
+for split in range(0, splits):
+    # load user ratings
+    for t in type:
+        args.i = split
+        args.type = t
+        run_baseline(args)
+
+'''
 print("Creating data for PSL.")
 for neighbour in neighbours:
     for split in range(0, splits):
@@ -86,5 +113,5 @@ for split in range(0, splits):
     args.list = neighbours
     startBaseline(args)
     print("Finished on split %s" % str(split))
-
+'''
 

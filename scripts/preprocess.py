@@ -1,6 +1,8 @@
 import numpy as np
+import pandas as pd
 import os
-import random
+from sklearn.model_selection import train_test_split
+from scipy.sparse.linalg import svds
 
 RATING_FILE_NAME = dict({'movie': 'ratings.dat',
                          'book': 'BX-Book-Ratings.csv',
@@ -12,196 +14,121 @@ entity_id2index = dict()
 relation_id2index = dict()
 item_index_old2new = dict()
 
-def read_item_index_to_entity_id_file(args):
-    file = '../data/' + args.d + '/item_index2entity_id.txt'
-    print('reading item index to entity id file: ' + file + ' ...')
-    i = 0
-    for line in open(file, encoding='utf-8').readlines():
-        item_index = line.strip().split('\t')[0]
-        satori_id = line.strip().split('\t')[1]
-        item_index_old2new[item_index] = i
-        entity_id2index[satori_id] = i
-        i += 1
+
+def readfile(path):
+    df = pd.read_csv(path, delimiter="\t", header=None, names=["users", "items", "ratings"])
+    return df
 
 
-def convert_rating(args):
-    file = '../data/' + args.d + '/' + RATING_FILE_NAME[args.d]
+def file_writer(file_path, df_x, df_y, size, file_type):
+    writer = open(file_path, 'w')
+    x_matrix = df_x.values
+    y_matrix = df_y.values
 
-    print('reading rating file ...')
-    item_set = set(item_index_old2new.values())
-    user_pos_ratings = dict()
-    user_neg_ratings = dict()
-
-    user_movie_ratings = dict()
-
-    for line in open(file, encoding='utf-8').readlines()[0:]:
-        array = line.strip().split(SEP[args.d])
-
-        # remove prefix and suffix quotation marks for BX dataset
-        if args.d == 'book':
-            array = list(map(lambda x: x[1:-1], array))
-
-        item_index_old = array[1]
-        if item_index_old not in item_index_old2new:  # the item is not in the final item set
-            continue
-        item_index = item_index_old2new[item_index_old]
-
-        user_index_old = int(array[0])
-
-        rating = float(array[2])
-
-        # Storing user-movie ratings
-        if user_index_old not in user_movie_ratings:
-            user_movie_ratings[user_index_old] = {}
-        user_movie_ratings[user_index_old][item_index] = rating
-
-        if rating >= THRESHOLD[args.d]:
-            if user_index_old not in user_pos_ratings:
-                user_pos_ratings[user_index_old] = set()
-            user_pos_ratings[user_index_old].add(item_index)
+    for i in range(0, size):
+        user = x_matrix[i][0]
+        item = x_matrix[i][1]
+        rating = y_matrix[i]
+        if file_type:
+            writer.write('%d\t%d\t%f\n' % (user, item, rating))
         else:
-            if user_index_old not in user_neg_ratings:
-                user_neg_ratings[user_index_old] = set()
-            user_neg_ratings[user_index_old].add(item_index)
-
-    print('converting rating file ...')
-    dir_name = os.path.join(args.d, args.out+'_'+str(args.i))
-    writer = open('../data/' + dir_name+ '/ratings_final.txt', 'w', encoding='utf-8')
-    ratingWriter = open('../data/' + dir_name + '/ratings_scores.txt', 'w', encoding='utf-8')
-
-    user_cnt = 0
-    user_index_old2new = dict()
-    for user_index_old, pos_item_set in user_pos_ratings.items():
-        if user_index_old not in user_index_old2new:
-            user_index_old2new[user_index_old] = user_cnt
-            user_cnt += 1
-        user_index = user_index_old2new[user_index_old]
-
-        for item in pos_item_set:
-            writer.write('%d\t%d\t1\n' % (user_index, item))
-            itemDict = user_movie_ratings[user_index_old]
-            ratingValue = itemDict[item]
-            ratingWriter.write('%d\t%d\t%d\n' % (user_index, item, ratingValue))
-
-        unwatched_set = item_set - pos_item_set
-        if user_index_old in user_neg_ratings:
-            unwatched_set -= user_neg_ratings[user_index_old]
-        for item in np.random.choice(list(unwatched_set), size=len(pos_item_set), replace=False):
-            writer.write('%d\t%d\t0\n' % (user_index, item))
-            ratingValue = 0
-            if user_index_old in user_movie_ratings:
-                itemDict = user_movie_ratings[user_index_old]
-                if item in itemDict:
-                    ratingValue = itemDict[item]
-
-            ratingWriter.write('%d\t%d\t%d\n' % (user_index, item, ratingValue))
+            writer.write('%d\t%d\n' % (user, item))
 
     writer.close()
-    ratingWriter.close()
-    print('number of users: %d' % user_cnt)
-    print('number of items: %d' % len(item_set))
-    return user_cnt
-
-
-def convert_kg(args):
-    print('converting kg.txt file ...')
-    entity_cnt = len(entity_id2index)
-    relation_cnt = 0
-
-    dir_name = args.out + '_' + str(args.i)
-    relations_path = os.path.join('..', 'data', args.d, dir_name, 'relations_obs.txt')
-    kg_path = os.path.join('..', 'data', args.d, dir_name, 'kg_final.txt')
-    kg_input_path = os.path.join('..', 'data', args.d, 'kg.txt')
-    writer = open(relations_path, 'w', encoding='utf-8')
-    kg_writer = open(kg_path, 'w', encoding='utf-8')
-    file = open(kg_input_path, encoding='utf-8')
-
-    for line in file:
-        array = line.strip().split('\t')
-        head_old = array[0]
-        relation_old = array[1]
-        tail_old = array[2]
-
-        if head_old not in entity_id2index:
-            continue
-        head = entity_id2index[head_old]
-
-        if tail_old not in entity_id2index:
-            entity_id2index[tail_old] = entity_cnt
-            entity_cnt += 1
-        tail = entity_id2index[tail_old]
-
-        if relation_old not in relation_id2index:
-            relation_id2index[relation_old] = relation_cnt
-            relation_cnt += 1
-        relation = relation_id2index[relation_old]
-
-        writer.write('%d\t%d\t%d\n' % (head, relation, tail))
-        kg_writer.write('%d\t%d\t%d\n' % (head, relation, tail))
-        writer.write('%d\t%d\t%d\n' % (tail, relation, head))
-
-    writer.close()
-    kg_writer.close()
-    file.close()
-    print('number of entities (containing items): %d' % entity_cnt)
-    print('number of relations: %d' % relation_cnt)
 
 
 def data_split(args):
-    print('spliting data into observed and target ...')
-    ratio = 0.8
+    print('spliting data ')
 
-    dir_name = os.path.join(args.d, args.out + '_' + str(args.i))
-    inputFile = '../data/' + dir_name + '/' + 'ratings_scores.txt'
+    dir_name = os.path.join('..', 'data', args.d)
+    split_dir_name = args.out+'_'+str(args.i)
 
-    observationWriter = open('../data/' + dir_name + '/ratings_obs.txt', 'w', encoding='utf-8')
-    targetWriter = open('../data/' + dir_name + '/ratings_target.txt', 'w', encoding='utf-8')
-    truthWriter = open('../data/' + dir_name + '/ratings_truth.txt', 'w', encoding='utf-8')
-    #simItemsWriter = open('../data/' + dir_name + '/ratings_scores_obs.txt', 'w', encoding='utf-8')
+    input_file = 'ratings.txt'
+    train_file = 'ratings_obs.txt'
+    truth_file = 'ratings_truth.txt'
+    test_file = 'ratings_target.txt'
 
-    lines = []
-    for line in open(inputFile, encoding='utf-8').readlines()[0:]:
-        lines.append(line)
-    print(len(lines))
+    input_file_path = os.path.join(dir_name, input_file)
 
-    train_size = int(round(len(lines) * ratio, 0))
-    print(train_size)
-    count = 0
-    random.seed(args.s)
-    order = random.sample(range(0, len(lines)), len(lines))
+    train_file_path = os.path.join(dir_name, split_dir_name, 'eval', train_file)
+    target_file_path = os.path.join(dir_name, split_dir_name, 'eval', test_file)
+    truth_file_path = os.path.join(dir_name, split_dir_name, 'eval', truth_file)
 
-    for i in order:
-        line = lines[i]
+    val_train_file_path = os.path.join(dir_name, split_dir_name, 'train', train_file)
+    val_target_file_path = os.path.join(dir_name, split_dir_name, 'train', test_file)
+    val_truth_file_path = os.path.join(dir_name, split_dir_name, 'train', truth_file)
 
-        array = line.strip().split('\t')
+    df = readfile(input_file_path)
+    y = df['ratings']
+    X = df.drop('ratings', axis=1)
 
-        user_index = int(array[0])
-        item_index = int(array[1])
-        rating = float(array[2])
+    x, x_test, y, y_test = train_test_split(X, y, test_size=0.2, train_size=0.8, random_state=args.s)
 
-        if count < train_size:
-            #simItemsWriter.write('%d\t%d\t%f\n' % (user_index, item_index, rating))
-            if rating > 0:
-                rating = 1
-            else:
-                rating = 0
-            observationWriter.write('%d\t%d\t%f\n' % (user_index, item_index, rating))
+    x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.25, train_size=0.75, random_state=args.s)
 
-            count = count + 1
-        else:
-            if rating > 0:
-                rating = 1
-            else:
-                rating = 0
-            targetWriter.write('%d\t%d\n' % (user_index, item_index))
-            truthWriter.write('%d\t%d\t%f\n' % (user_index, item_index, rating))
-            count = count + 1
+    train_size = len(x_train)
+    test_size = len(x_val)
 
-    # inputFile.close()
-    observationWriter.close()
-    truthWriter.close()
-    targetWriter.close()
-    #simItemsWriter.close()
+    file_writer(val_train_file_path, x_train, y_train, train_size, True)
+    file_writer(val_target_file_path, x_val, y_val, test_size, False)
+    file_writer(val_truth_file_path, x_val, y_val, test_size, True)
+
+    train_size = len(x)
+    test_size = len(x_test)
+
+    file_writer(train_file_path, x, y, train_size, True)
+    file_writer(target_file_path, x_test, y_test, test_size, False)
+    file_writer(truth_file_path, x_test, y_test, test_size, True)
+
+
+def generate_similar_pair(args):
+    dir_name = os.path.join('..', 'data', args.d)
+    input_file = 'ratings.txt'
+
+    ratings_path = os.path.join(dir_name, input_file)
+    df = readfile(ratings_path)
+    neighbour = args.n
+
+    SIM_USER_OUTPUT_FILE = 'SIMILAR_USERS_'+str(neighbour)+'.txt'
+    SIM_ITEM_OUTPUT_FILE = 'SIMILAR_ITEMS_'+str(neighbour)+'.txt'
+
+    uu_outputpath = os.path.join('..', 'data', args.d, SIM_USER_OUTPUT_FILE)
+    ii_outputpath = os.path.join('..', 'data', args.d, SIM_ITEM_OUTPUT_FILE)
+
+    R_df = df.pivot(index='users', columns='items', values='ratings').fillna(0)
+
+    R = R_df.values
+    user_ratings_mean = np.mean(R, axis=1)
+
+    R_demeaned = R - user_ratings_mean.reshape(-1, 1)
+    U, sigma, Vt = svds(R_demeaned, k=neighbour)
+
+    user_sim_matrix = np.dot(U, np.transpose(U))
+    item_sim_matrix = np.dot(np.transpose(Vt), Vt)
+
+    idx = -neighbour-1
+    similar_users = np.argpartition(user_sim_matrix, np.argmax(user_sim_matrix, axis=0))[:, idx:]
+    similar_items = np.argpartition(item_sim_matrix, np.argmax(item_sim_matrix, axis=0))[:, idx:]
+
+    row, col = similar_users.shape
+    with open(uu_outputpath, 'w') as sim_user_writer:
+        for user in range(0, row):
+            for c_index in range(0, col):
+                if similar_users[user][c_index] == user:
+                    continue
+                else:
+                    sim_user_writer.write('%d\t%d\t1\n' % (user, similar_users[user][c_index]))
+    sim_user_writer.close()
+
+    row, col = similar_items.shape
+    with open(ii_outputpath, 'w') as sim_item_writer:
+        for item in range(0, row):
+            for c_index in range(0, col):
+                if similar_items[item][c_index] == item:
+                    continue
+                else:
+                    sim_item_writer.write('%d\t%d\t1\n' % (item, similar_items[item][c_index]))
+    sim_item_writer.close()
 
 
 def get_relations(DATASET):
@@ -272,9 +199,6 @@ def get_relations(DATASET):
 
 def preprocess(args):
     np.random.seed(args.s)
-    read_item_index_to_entity_id_file(args)
-    user_cnt = convert_rating(args)
-    convert_kg(args)
     data_split(args)
     #get_relations()
 
