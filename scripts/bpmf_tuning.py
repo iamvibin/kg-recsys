@@ -95,7 +95,7 @@ for split in range(0, splits):
     else:
         print("Successfully created split %s " % dir_name)
 
-rmse = {}
+dictionary = {}
 for iter in iter_list:
     mean_rmse = 0
     for split in range(0, splits):
@@ -109,8 +109,8 @@ for iter in iter_list:
 
     mean_rmse=mean_rmse/splits
     print('rmse', rmse)
-    if iter not in rmse:
-        rmse[iter] = []
-    rmse[iter].append(rmse)
-print(rmse)
-print(max(rmse.iteritems(), key=operator.itemgetter(1))[0])
+    if iter not in dictionary:
+        dictionary[iter] = []
+    dictionary[iter].append(mean_rmse)
+print(dictionary)
+print(max(dictionary.iteritems(), key=operator.itemgetter(1))[0])
