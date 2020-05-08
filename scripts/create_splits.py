@@ -28,15 +28,15 @@ parser.add_argument('--type', type=str, default='eval', help='list of neighbours
 args = parser.parse_args()
 EVAL = 'eval'
 TRAIN = 'train'
-type = [EVAL, TRAIN]
+type = [EVAL]
 args.tuning = True
-splits = 2
+splits = 10
 seed_list = random.sample(range(0, 2**32-1), splits)
 
 path = os.getcwd()
 data_path = os.path.join(path, '..', 'data', args.d)
 
-neighbours = [2, 5, 10]
+neighbours = [2, 5]
 print('Creating splits for the baseline....')
 
 entity_id2index ,relation_id2index, item_index_old2new = reformat(args)
@@ -74,7 +74,9 @@ for split in range(0, splits):
     for t in type:
         args.i = split
         args.type = t
+        args.s = seed_list[split]
         run_baseline(args)
+        print("Ran baseline on split %d" % split)
 
 '''
 print("Creating data for PSL.")

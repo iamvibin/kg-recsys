@@ -43,8 +43,8 @@ def run_baseline(args):
     n_item = max(ratings[:, 1])+1
 
     # fit model
-    bpmf = BPMF(n_user=n_user, n_item=n_item, n_feature=10,
-                max_rating=5., min_rating=1., seed=0).fit(ratings, n_iters=20)
+    bpmf = BPMF(n_user=n_user, n_item=n_item, n_feature=16,
+                max_rating=5., min_rating=1., seed=args.s).fit(ratings, n_iters=2000)
     RMSE(bpmf.predict(ratings[:, :2]), ratings[:, 2])  # training RMSE
 
     df = pd.read_csv(TARGET_PATH, delimiter="\t", header=None, names=["users", "items"])
