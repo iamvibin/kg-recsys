@@ -1,10 +1,10 @@
 predicates:
-  Rating/NEIGHBOUR: open
-  Blocking/NEIGHBOUR: closed
-  SimilarUsers/NEIGHBOUR: closed
-  SimilarItems/NEIGHBOUR: closed
+  Rating/2: open
+  Blocking/2: closed
+  SimilarUsers/2: closed
+  SimilarItems/2: closed
   Relation/3: closed
-  LocalClassifier/NEIGHBOUR: closed 
+  LocalClassifier/2: closed
 
 observations:
   Rating: ../data/movie/baselineSplit/eval/ratings_obs.txt
