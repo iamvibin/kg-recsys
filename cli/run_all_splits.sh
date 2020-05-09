@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a arr=("2" "5" "10")
+declare -a arr=("2" "5")
 splits=9
 for neighbour in "${arr[@]}"
 do
