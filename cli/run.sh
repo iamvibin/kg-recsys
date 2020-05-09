@@ -10,6 +10,7 @@ readonly BASE_NAME='movie'
 readonly baseline_id='000'
 readonly splitId=$2
 neighbour=$1
+neigh=$1
 printf -v neighbour "%03d" $neighbour
 readonly ADDITIONAL_PSL_OPTIONS='--int-ids --postgres -D log4j.threshold=TRACE'
 readonly ADDITIONAL_LEARN_OPTIONS='--learn'
@@ -31,7 +32,7 @@ function main() {
    echo $splitId
    sed -i "s/baselineSplit/${baseline_id}_${splitId}/g" ${BASE_NAME}.data
    sed -i "s/neighbourSplit/${neighbour}_${splitId}/g" ${BASE_NAME}.data
-   sed -i "s/NEIGHBOUR/${neighbour}/g" ${BASE_NAME}.data
+   sed -i "s/NEIGHBOUR/${neigh}/g" ${BASE_NAME}.data
 
    # Run PSL
    #runWeightLearning "$@"
@@ -39,7 +40,7 @@ function main() {
    runEvaluationWithoutWL "$@"
    sed -i "s/${baseline_id}_${splitId}/baselineSplit/g" ${BASE_NAME}.data
    sed -i "s/${neighbour}_${splitId}/neighbourSplit/g" ${BASE_NAME}.data
-   sed -i "s/${neighbour}/NEIGHBOUR/g" ${BASE_NAME}.data
+   sed -i "s/${neigh}/NEIGHBOUR/g" ${BASE_NAME}.data
 }
 function runWeightLearning() {
    echo "Running PSL Weight Learning"
