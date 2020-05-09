@@ -11,6 +11,7 @@ from scipy.stats import wishart
 from BPMF.recommend.bpmf import BPMF
 from BPMF.recommend.utils.evaluation import RMSE
 from run_bpmf import run_baseline
+from run_bpmf import get_baseline_output
 from sim_interactions_from_kg import generate_user_item_pair
 from generate_blocking_target import generate_blocking_target
 from src.main import startBaseline
@@ -24,22 +25,24 @@ parser.add_argument('--i', type=int, default=0, help='running on split')
 parser.add_argument('--out', type=str, default='000', help='default directory')
 parser.add_argument('--list', type=list, default=[], help='list of neighbours')
 parser.add_argument('--type', type=str, default='eval', help='list of neighbours')
-
+parser.add_argument('--n_items', type=int, default=0, help='number of entities')
+parser.add_argument('--n_users', type=int, default=0, help='number of users')
 args = parser.parse_args()
 EVAL = 'eval'
 TRAIN = 'train'
-type = [EVAL]
-args.tuning = True
+eval_types = [EVAL, TRAIN]
 splits = 10
-seed_list = random.sample(range(0, 2**32-1), splits)
-
+#seed_list = random.sample(range(0, 2**32-1), splits)
+seed_list = [1238879808, 2790790704, 1154929626, 867958829, 2920458158, 865877606, 1056154238, 2144527568, 1464353066, 3087242964]
 path = os.getcwd()
 data_path = os.path.join(path, '..', 'data', args.d)
 
 neighbours = [2, 5]
 print('Creating splits for the baseline....')
 
-entity_id2index ,relation_id2index, item_index_old2new = reformat(args)
+entity_id2index ,relation_id2index, item_index_old2new, user_cnt = reformat(args)
+args.n_items = len(entity_id2index)
+args.n_users = user_cnt
 
 for split in range(0, splits):
     dir_name = args.out+'_'+str(split)
@@ -66,19 +69,52 @@ for split in range(0, splits):
         print("Successfully created split %s " % dir_name)
 
 for neighbour in neighbours:
+    for split in range(0, splits):
+        n_dir_name = str(neighbour).zfill(3) + '_' + str(split)
+        n_dir_path = os.path.join(data_path, n_dir_name)
+        try:
+            if not os.path.isfile(n_dir_path):
+                os.mkdir(n_dir_path)
+                os.mkdir(os.path.join(n_dir_path, TRAIN))
+                os.mkdir(os.path.join(n_dir_path, EVAL))
+        except OSError:
+            print("Failed run on creating split %s" % n_dir_name)
+        else:
+            print("Successfully created split %s " % n_dir_name)
+
+for neighbour in neighbours:
     args.n = neighbour
     generate_similar_pair(args)
+print(" Similar user and simlar items pairs generated.")
 
+for neighbour in neighbours:
+    for split in range(0, splits):
+        for evalType in eval_types:
+            args.n = neighbour
+            args.type = evalType
+            args.i = split
+            generate_user_item_pair(args)
+            generate_blocking_target(args)
+
+for neighbour in neighbours:
+    for split in range(0, splits):
+        for evalType in eval_types:
+            args.n = neighbour
+            args.type = evalType
+            args.i = split
+            get_baseline_output(args)
+            print('Baseline output for split', (neighbour, split))
+'''
 for split in range(0, splits):
     # load user ratings
-    for t in type:
+    for evalType in eval_types:
         args.i = split
-        args.type = t
+        args.type = evalType
         args.s = seed_list[split]
         run_baseline(args)
         print("Ran baseline on split %d" % split)
 
-'''
+
 print("Creating data for PSL.")
 for neighbour in neighbours:
     for split in range(0, splits):

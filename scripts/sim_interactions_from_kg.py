@@ -15,28 +15,26 @@ def generate_user_item_pair(args):
     Dataset = args.d
     neighbour = args.n
     threshold = args.t
+    evalType = args.type
     split = args.i
     dir_name = args.out+'_'+str(split)
     n_dir_name = str(neighbour).zfill(3)+'_'+str(split)
 
-    ALL_RATINGS_INPUT_FILE = 'ratings_scores.txt'
+    ALL_RATINGS_INPUT_FILE = 'ratings.txt'
     INPUT_KG_FILE = 'relations_obs.txt'
     OBS_FILE = 'ratings_obs.txt'
-    SIM_USER_OUTPUT_FILE = 'sim_users_obs.txt'
-    SIM_ITEM_OUTPUT_FILE = 'sim_items_obs.txt'
 
     IMPLICIT_INTERACTIONS_FILE = 'generated_relations_from_ratings.txt'
     NEW_INTERACTIONS_FILE = 'generated_relations_from_kg.txt'
 
     # paths
-    ratings_inputpath = os.path.join('..', 'data', Dataset, dir_name, ALL_RATINGS_INPUT_FILE)
-    obs_inputpath = os.path.join('..', 'data', Dataset, dir_name, OBS_FILE)
-    kg_inputpath = os.path.join('..', 'data', Dataset, dir_name, INPUT_KG_FILE)
-    full_inputpath = os.path.join('..', 'data', Dataset, dir_name, ALL_RATINGS_INPUT_FILE)
-    implicit_sim_pair_file_path = os.path.join('..', 'data', Dataset, n_dir_name, IMPLICIT_INTERACTIONS_FILE)
-    outputpath = os.path.join('..', 'data', Dataset, n_dir_name, NEW_INTERACTIONS_FILE)
-    uu_outputpath = os.path.join('..', 'data', Dataset, n_dir_name, SIM_USER_OUTPUT_FILE)
-    ii_outputpath = os.path.join('..', 'data', Dataset, n_dir_name, SIM_ITEM_OUTPUT_FILE)
+    ratings_inputpath = os.path.join('..', 'data', Dataset, ALL_RATINGS_INPUT_FILE)
+    obs_inputpath = os.path.join('..', 'data', Dataset, dir_name, evalType, OBS_FILE)
+    kg_inputpath = os.path.join('..', 'data', Dataset, INPUT_KG_FILE)
+    full_inputpath = os.path.join('..', 'data', Dataset,  ALL_RATINGS_INPUT_FILE)
+
+    implicit_sim_pair_file_path = os.path.join('..', 'data', Dataset, n_dir_name, evalType, IMPLICIT_INTERACTIONS_FILE)
+    outputpath = os.path.join('..', 'data', Dataset, n_dir_name, evalType, NEW_INTERACTIONS_FILE)
 
     print("Calculating similar users and similar items from implicit ratings")
     df = readfile(ratings_inputpath)
@@ -57,26 +55,6 @@ def generate_user_item_pair(args):
     similar_items = np.argpartition(item_sim_matrix, np.argmax(item_sim_matrix, axis=0))[:, idx:]
     item_limit, it = similar_items.shape
 
-    row, col = similar_users.shape
-    with open(uu_outputpath, 'w') as sim_user_writer:
-        for user in range(0, row):
-            for c_index in range(0, col):
-                if similar_users[user][c_index] == user:
-                    continue
-                else:
-                    sim_user_writer.write('%d\t%d\t1\n' % (user, similar_users[user][c_index]))
-    sim_user_writer.close()
-
-    row, col = similar_items.shape
-    with open(ii_outputpath, 'w') as sim_item_writer:
-        for item in range(0, row):
-            for c_index in range(0, col):
-                if similar_items[item][c_index] == item:
-                    continue
-                else:
-                    sim_item_writer.write('%d\t%d\t1\n' % (item, similar_items[item][c_index]))
-    sim_item_writer.close()
-
     obs_df = readfile(obs_inputpath)
     full_df = readfile(full_inputpath)
     matrix = obs_df.values
@@ -89,10 +67,6 @@ def generate_user_item_pair(args):
         user = full_matrix[index][0]
         item = full_matrix[index][1]
         rating = full_matrix[index][2]
-        if rating >= threshold:
-            rating = 1
-        else:
-            rating = 0
         if user not in dictionary:
             dictionary[int(user)] = {}
         dictionary[int(user)][int(item)] = int(rating)
@@ -111,7 +85,7 @@ def generate_user_item_pair(args):
     print("Number of entities", len(kg_dict))
 
     # getting new combinations from implicit ratings
-    print("Writing new interactions from implicit ratings")
+    print("Writing new interactions from implicit ratings for split ", (n_dir_name,evalType))
 
     row, col = matrix.shape
     with open(implicit_sim_pair_file_path, 'w') as writer:
@@ -120,7 +94,7 @@ def generate_user_item_pair(args):
             item = int(matrix[index][1])
             rating = float(matrix[index][2])
 
-            if rating > 0:
+            if rating >= threshold:
                 userlist = similar_users[int(user)][:]
                 userlist = userlist.reshape(-1, 1)
                 itemlist = similar_items[int(item)][:]
@@ -148,7 +122,7 @@ def generate_user_item_pair(args):
 
     all_pairs_df = pd.concat([obs_without_ratings_df, new_potential_pairs_df])
     all_pairs = all_pairs_df.values
-    print("Writing new user item pair interactions from knowledge graph.")
+    print("Writing new user item pair interactions from knowledge graph for split: ", (n_dir_name,evalType))
 
     row, col = all_pairs.shape
     with open(outputpath, 'w') as writer:

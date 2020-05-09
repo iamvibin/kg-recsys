@@ -121,6 +121,6 @@ def convert_kg(args):
 
 def reformat(args):
     read_item_index_to_entity_id_file(args)
-    get_rating(args)
+    user_cnt = get_rating(args)
     convert_kg(args)
-    return entity_id2index ,relation_id2index, item_index_old2new
+    return entity_id2index ,relation_id2index, item_index_old2new, user_cnt
