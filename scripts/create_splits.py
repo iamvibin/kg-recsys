@@ -19,7 +19,7 @@ from src.main import startBaseline
 parser = argparse.ArgumentParser()
 parser.add_argument('--d', type=str, default='movie', help='which dataset to use')
 parser.add_argument('--n', type=int, default=5, help='the number of neighbors')
-parser.add_argument('--t', type=int, default=4, help='threshold')
+parser.add_argument('--t', type=float, default=0.8, help='threshold')
 parser.add_argument('--s', type=int, default=555, help='seed value')
 parser.add_argument('--i', type=int, default=0, help='running on split')
 parser.add_argument('--out', type=str, default='000', help='default directory')
@@ -94,7 +94,7 @@ for neighbour in neighbours:
             args.type = evalType
             args.i = split
             generate_user_item_pair(args)
-            generate_blocking_target(args)
+            #generate_blocking_target(args)
 
 for neighbour in neighbours:
     for split in range(0, splits):
@@ -104,7 +104,7 @@ for neighbour in neighbours:
             args.i = split
             get_baseline_output(args)
             print('Baseline output for split', (neighbour, split))
-'''
+
 for split in range(0, splits):
     # load user ratings
     for evalType in eval_types:
@@ -114,6 +114,7 @@ for split in range(0, splits):
         run_baseline(args)
         print("Ran baseline on split %d" % split)
 
+'''
 
 print("Creating data for PSL.")
 for neighbour in neighbours:

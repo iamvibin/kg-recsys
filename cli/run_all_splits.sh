@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#run all splits.
 declare -a arr=("2" "5")
 splits=9
 for neighbour in "${arr[@]}"

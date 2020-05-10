@@ -43,7 +43,7 @@ def get_baseline_output(args):
 
     # fit model
     bpmf = BPMF(n_user=n_user, n_item=n_item, n_feature=4,
-                max_rating=5., min_rating=1., seed=args.s).fit(ratings, n_iters=200)
+                max_rating=5., min_rating=1., seed=args.s).fit(ratings, n_iters=10)
 
     for file_type in files:
         n_dir_name = str(neighbour).zfill(3) + '_' + str(split)
@@ -76,16 +76,17 @@ def run_baseline(args):
 
     df = pd.read_csv(INPUT_PATH, delimiter='\t', header=None, names=["users", "items", "ratings"])
     df['ratings'] = df['ratings'] * 5
-    print(df)
     df = df[list(df.columns)].astype(int)
     ratings = df.values
 
-    n_user = max(ratings[:, 0])+1
-    n_item = max(ratings[:, 1])+1
+    #n_user = max(ratings[:, 0])+1
+    #n_item = max(ratings[:, 1])+1
+    n_user = args.n_users  # max(ratings[:, 0]) + 1
+    n_item = args.n_items
 
     # fit model
     bpmf = BPMF(n_user=n_user, n_item=n_item, n_feature=4,
-                max_rating=5., min_rating=1., seed=args.s).fit(ratings, n_iters=2000)
+                max_rating=5., min_rating=1., seed=args.s).fit(ratings, n_iters=10)
     RMSE(bpmf.predict(ratings[:, :2]), ratings[:, 2])  # training RMSE
 
     df = pd.read_csv(TARGET_PATH, delimiter="\t", header=None, names=["users", "items"])

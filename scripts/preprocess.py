@@ -129,7 +129,7 @@ def generate_similar_pair(args):
                 else:
                     sim_item_writer.write('%d\t%d\t1\n' % (item, similar_items[item][c_index]))
     sim_item_writer.close()
-    print(" Similar users and simlar items files generated.")
+    print(" Similar users and similar items files generated.")
 
 
 def get_relations(DATASET):
