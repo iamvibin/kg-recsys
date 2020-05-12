@@ -19,7 +19,7 @@ from src.main import startBaseline
 parser = argparse.ArgumentParser()
 parser.add_argument('--d', type=str, default='movie', help='which dataset to use')
 parser.add_argument('--n', type=int, default=5, help='the number of neighbors')
-parser.add_argument('--t', type=float, default=0.8, help='threshold')
+parser.add_argument('--t', type=float, default=0.0, help='threshold')
 parser.add_argument('--s', type=int, default=555, help='seed value')
 parser.add_argument('--i', type=int, default=0, help='running on split')
 parser.add_argument('--out', type=str, default='000', help='default directory')
