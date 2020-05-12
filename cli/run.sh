@@ -30,22 +30,34 @@ function main() {
    echo stat
    echo $1
    echo $splitId
-   sed -i "s/baselineSplit/${baseline_id}_${splitId}/g" ${BASE_NAME}.data
-   sed -i "s/neighbourSplit/${neighbour}_${splitId}/g" ${BASE_NAME}.data
-   sed -i "s/_NEIGHBOUR/_${neigh}/g" ${BASE_NAME}.data
+   sed -i "s/baselineSplit/${baseline_id}_${splitId}/g" "${BASE_NAME}-learn.data"
+   sed -i "s/neighbourSplit/${neighbour}_${splitId}/g" "${BASE_NAME}-learn.data"
+   sed -i "s/_NEIGHBOUR/_${neigh}/g" "${BASE_NAME}-learn.data"
+
+   runWeightLearning "$@"
+
+   sed -i "s/baselineSplit/${baseline_id}_${splitId}/g" "${BASE_NAME}-eval.data"
+   sed -i "s/neighbourSplit/${neighbour}_${splitId}/g" "${BASE_NAME}-eval.data"
+   sed -i "s/_NEIGHBOUR/_${neigh}/g" "${BASE_NAME}-eval.data"
+
+   runEvaluation "$@"
+
+   sed -i "s/${baseline_id}_${splitId}/baselineSplit/g" "${BASE_NAME}-eval.data"
+   sed -i "s/${neighbour}_${splitId}/neighbourSplit/g" "${BASE_NAME}-eval.data"
+   sed -i "s/_${neigh}/_NEIGHBOUR/g" "${BASE_NAME}-eval.data"
 
    # Run PSL
    #runWeightLearning "$@"
    #runEvaluation "$@"
-   runEvaluationWithoutWL "$@"
-   sed -i "s/${baseline_id}_${splitId}/baselineSplit/g" ${BASE_NAME}.data
-   sed -i "s/${neighbour}_${splitId}/neighbourSplit/g" ${BASE_NAME}.data
-   sed -i "s/_${neigh}/_NEIGHBOUR/g" ${BASE_NAME}.data
+   #runEvaluationWithoutWL "$@"
+   sed -i "s/${baseline_id}_${splitId}/baselineSplit/g" "${BASE_NAME}-learn.data"
+   sed -i "s/${neighbour}_${splitId}/neighbourSplit/g" "${BASE_NAME}-learn.data"
+   sed -i "s/_${neigh}/_NEIGHBOUR/g" "${BASE_NAME}-learn.data"
 }
 function runWeightLearning() {
    echo "Running PSL Weight Learning"
 
-   java -jar "${JAR_PATH}" --model "${BASE_NAME}.psl" --data "${BASE_NAME}-learn.data" ${ADDITIONAL_LEARN_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
+   java -Xmx${JAVA_MEM_GB}G -Xms${JAVA_MEM_GB}G -jar "${JAR_PATH}" --model "${BASE_NAME}.psl" --data "${BASE_NAME}-learn.data" ${ADDITIONAL_LEARN_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
    if [[ "$?" -ne 0 ]]; then
       echo 'ERROR: Failed to run weight learning'
       exit 60
@@ -55,7 +67,7 @@ function runWeightLearning() {
 function runEvaluation() {
    echo "Running PSL Inference"
 
-   java -jar "${JAR_PATH}" --model "${BASE_NAME}-learned.psl" --data "${BASE_NAME}-eval.data" --output inferred-predicates ${ADDITIONAL_EVAL_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
+   java -Xmx${JAVA_MEM_GB}G -Xms${JAVA_MEM_GB}G -jar "${JAR_PATH}" --model "${BASE_NAME}-learned.psl" --data "${BASE_NAME}-eval.data" --output inferred-predicates/${neighbour}_$splitId ${ADDITIONAL_EVAL_OPTIONS} ${ADDITIONAL_PSL_OPTIONS} "$@"
    if [[ "$?" -ne 0 ]]; then
       echo 'ERROR: Failed to run infernce'
       exit 70

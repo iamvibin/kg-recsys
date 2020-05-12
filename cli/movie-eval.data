@@ -3,29 +3,18 @@ predicates:
   Blocking/2: closed
   SimilarUsers/2: closed
   SimilarItems/2: closed
-  Country/2: closed
-  Director/2: closed
-  Genre/2: closed
-  Language/2: closed
-  Rated/2: closed
-  Star/2: closed
-  Writer/2: closed
+  Relation/3: closed
+  LocalClassifier/2: closed
 
 observations:
-  Rating: ../data/movie/ratings_obs.txt
-  Blocking: ../data/movie/blocking_obs.txt
-  SimilarUsers: ../data/movie/sim_users_50_obs.txt
-  SimilarItems: ../data/movie/sim_items_50_obs.txt
-  Country: ../data/movie/relations/country.txt
-  Director: ../data/movie/relations/director.txt
-  Genre: ../data/movie/relations/genre.txt
-  Language: ../data/movie/relations/language.txt
-  Rated: ../data/movie/relations/rating.txt
-  Star: ../data/movie/relations/star.txt
-  Writer: ../data/movie/relations/writer.txt
+  Rating: ../data/movie/baselineSplit/eval/ratings_obs.txt
+  Blocking: ../data/movie/neighbourSplit/eval/blocking_obs_without_kg.txt
+  SimilarUsers: ../data/movie/SIMILAR_USERS_NEIGHBOUR.txt
+  SimilarItems: ../data/movie/SIMILAR_ITEMS_NEIGHBOUR.txt
+  LocalClassifier: ../data/movie/neighbourSplit/eval/baseline_output_without_kg.txt
 
 targets:
-  Rating: ../data/movie/ratings_target.txt
+  Rating: ../data/movie/neighbourSplit/eval/ratings_target_without_kg.txt
 
 truth:
-  Rating: ../data/movie/ratings_truth.txt
+  Rating: ../data/movie/baselineSplit/eval/ratings_truth.txt
