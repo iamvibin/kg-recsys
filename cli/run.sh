@@ -12,8 +12,8 @@ readonly splitId=$2
 neighbour=$1
 neigh=$1
 printf -v neighbour "%03d" $neighbour
-readonly ADDITIONAL_PSL_OPTIONS='--int-ids --postgres -D log4j.threshold=TRACE'
-readonly ADDITIONAL_LEARN_OPTIONS='--learn'
+readonly ADDITIONAL_PSL_OPTIONS='--int-ids --postgres vibin -D log4j.threshold=TRACE -D admmreasoner.maxiterations=600 -D admmreasoner.stepsize=0.55 -D continuousrandomgridsearch.baseweight=3.0'
+readonly ADDITIONAL_LEARN_OPTIONS='--learn ContinuousRandomGridSearch'
 readonly ADDITIONAL_EVAL_OPTIONS='--infer --eval ContinuousEvaluator'
 readonly AVAILABLE_MEM_KB=$(cat /proc/meminfo | grep 'MemTotal' | sed 's/^[^0-9]\+\([0-9]\+\)[^0-9]\+$/\1/')
 # Floor by multiples of 5 and then reserve an additional 5 GB.
@@ -41,7 +41,7 @@ function main() {
    sed -i "s/_NEIGHBOUR/_${neigh}/g" "${BASE_NAME}-eval.data"
 
    runEvaluation "$@"
-
+   cp "${BASE_NAME}-learned.psl" "${BASE_NAME}_${neighbour}_${splitId}-learned.psl"
    sed -i "s/${baseline_id}_${splitId}/baselineSplit/g" "${BASE_NAME}-eval.data"
    sed -i "s/${neighbour}_${splitId}/neighbourSplit/g" "${BASE_NAME}-eval.data"
    sed -i "s/_${neigh}/_NEIGHBOUR/g" "${BASE_NAME}-eval.data"
