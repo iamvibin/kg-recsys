@@ -9,9 +9,9 @@ def readfile(path):
 
 Dataset = 'movie'
 INPUT_FILE = 'generated_data.txt'
-OUTPUT_FILE = 'generated_data_noduplicates.txt'
+OUTPUT_FILE = 'generated_data_noduplicates5.txt'
 
-target_inputpath = os.path.join('..', 'data', Dataset, INPUT_FILE)
+target_inputpath = os.path.join('..', 'data', Dataset, '005_0', 'train', 'ratings_target_with_kg_exp.txt')
 
 target_outputpath = os.path.join('..', 'data', Dataset, OUTPUT_FILE)
 

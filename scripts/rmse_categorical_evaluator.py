@@ -52,10 +52,10 @@ with open (OUTPUT_FILE, 'w') as writer:
             true_ratings = new_df['rating'].to_list()
             predicted_ratings = new_df['prediction'].to_list()
 
-            mse = mean_squared_error(true_ratings*5, predicted_ratings*5)
-            mae = mean_absolute_error(true_ratings*5, predicted_ratings*5)
+            mse = mean_squared_error(true_ratings, predicted_ratings)
+            mae = mean_absolute_error(true_ratings, predicted_ratings)
             rmse = math.sqrt(mse)
-            print(rmse, mae)
+            print(rmse, mse, mae)
 
 
             writer.write('%d\t%d\t%f\t%f\n' % (neighbour, split, rmse, mae))
