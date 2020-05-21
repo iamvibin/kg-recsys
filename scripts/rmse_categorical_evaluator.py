@@ -4,7 +4,13 @@ import pandas as pd
 import os
 import argparse
 import math
+import numpy as np
 
+def clean_dataset(df):
+    assert isinstance(df, pd.DataFrame), "df needs to be a pd.DataFrame"
+    df.dropna(inplace=True)
+    indices_to_keep = ~df.isin([np.nan, np.inf, -np.inf]).any(1)
+    return df[indices_to_keep].astype(np.float64)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--d', type=str, default='movie', help='which dataset to use')
@@ -25,11 +31,9 @@ OTHER_FILE = 'RATING.txt'
 OUTPUT_FILE = 'result.txt'
 EVAL = 'eval'
 DATA_PATH = os.path.join('..','data','movie')
-TRUTH_PATH = os.path.join(DATA_PATH, TRUTH_FILE)
-PREDICTIONS_PATH = os.path.join(DATA_PATH, PREDICTIONS_FILE)
 
-neighbours = [0, 2, 5]
-splits = 10
+neighbours = [0, 2]
+splits = 1
 
 with open (OUTPUT_FILE, 'w') as writer:
     for split in range(0, splits):
@@ -47,8 +51,11 @@ with open (OUTPUT_FILE, 'w') as writer:
             truth_df = pd.read_csv(TRUTH_PATH, delimiter="\t", header=None, names=["user", "item", "rating"])
             predictions_df = pd.read_csv(PREDICTIONS_PATH, delimiter="\t", header=None,
                                          names=["user", "item", "prediction"])
-            new_df = pd.merge(truth_df, predictions_df, how='left', left_on=['user', 'item'], right_on=['user', 'item'])
+            df = pd.merge(truth_df, predictions_df, how='left', left_on=['user', 'item'], right_on=['user', 'item'])
 
+            new_df = clean_dataset(df)
+            print(len(df))
+            print(len(new_df))
             true_ratings = new_df['rating'].to_list()
             predicted_ratings = new_df['prediction'].to_list()
 
