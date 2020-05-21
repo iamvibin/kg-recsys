@@ -50,13 +50,13 @@ def data_split(args):
 
     input_file_path = os.path.join(dir_name, input_file)
 
-    train_file_path = os.path.join(dir_name, split_dir_name, 'eval', train_file)
-    target_file_path = os.path.join(dir_name, split_dir_name, 'eval', test_file)
-    truth_file_path = os.path.join(dir_name, split_dir_name, 'eval', truth_file)
+    eval_train_file_path = os.path.join(dir_name, split_dir_name, 'eval', train_file)
+    eval_target_file_path = os.path.join(dir_name, split_dir_name, 'eval', test_file)
+    eval_truth_file_path = os.path.join(dir_name, split_dir_name, 'eval', truth_file)
 
-    val_train_file_path = os.path.join(dir_name, split_dir_name, 'train', train_file)
-    val_target_file_path = os.path.join(dir_name, split_dir_name, 'train', test_file)
-    val_truth_file_path = os.path.join(dir_name, split_dir_name, 'train', truth_file)
+    learn_train_file_path = os.path.join(dir_name, split_dir_name, 'train', train_file)
+    learn_target_file_path = os.path.join(dir_name, split_dir_name, 'train', test_file)
+    learn_truth_file_path = os.path.join(dir_name, split_dir_name, 'train', truth_file)
 
     df = readfile(input_file_path)
     y = df['ratings']
@@ -66,19 +66,19 @@ def data_split(args):
 
     x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.25, train_size=0.75, random_state=args.s)
 
-    train_size = len(x_train)
-    test_size = len(x_val)
+    learn_train_size = len(x_train)
+    learn_test_size = len(x_val)
 
-    file_writer(val_train_file_path, x_train, y_train, train_size, True)
-    file_writer(val_target_file_path, x_val, y_val, test_size, False)
-    file_writer(val_truth_file_path, x_val, y_val, test_size, True)
+    file_writer(learn_train_file_path, x_train, y_train, learn_train_size, True)
+    file_writer(learn_target_file_path, x_val, y_val, learn_test_size, False)
+    file_writer(learn_truth_file_path, x_val, y_val, learn_test_size, True)
 
-    train_size = len(x)
-    test_size = len(x_test)
+    eval_train_size = len(x)
+    eval_test_size = len(x_test)
 
-    file_writer(train_file_path, x, y, train_size, True)
-    file_writer(target_file_path, x_test, y_test, test_size, False)
-    file_writer(truth_file_path, x_test, y_test, test_size, True)
+    file_writer(eval_train_file_path, x, y, eval_train_size, True)
+    file_writer(eval_target_file_path, x_test, y_test, eval_test_size, False)
+    file_writer(eval_truth_file_path, x_test, y_test, eval_test_size, True)
 
 
 def generate_similar_pair(args):
