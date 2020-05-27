@@ -4,7 +4,7 @@
 # These options are blind-passed to the CLI.
 # Ex: ./run.sh -D log4j.threshold=DEBUG
 
-readonly PSL_VERSION='2.2.2'
+readonly PSL_VERSION='2.3.0-SNAPSHOT2'
 readonly JAR_PATH="./psl-cli-${PSL_VERSION}.jar"
 readonly BASE_NAME='movie'
 readonly baseline_id='000'
@@ -12,8 +12,8 @@ readonly splitId=$2
 neighbour=$1
 neigh=$1
 printf -v neighbour "%03d" $neighbour
-readonly ADDITIONAL_PSL_OPTIONS='--int-ids --postgres vibin -D log4j.threshold=TRACE -D admmreasoner.maxiterations=600 -D admmreasoner.stepsize=0.55 -D continuousrandomgridsearch.baseweight=3.0'
-readonly ADDITIONAL_LEARN_OPTIONS='--learn ContinuousRandomGridSearch'
+readonly ADDITIONAL_PSL_OPTIONS='--int-ids --postgres vibin -D log4j.threshold=TRACE -D admmreasoner.maxiterations=600 -D continuousrandomgridsearch.baseweight=3.0 gpp.maxiterations=25'
+readonly ADDITIONAL_LEARN_OPTIONS='--learn GaussianProcessPrior'
 readonly ADDITIONAL_EVAL_OPTIONS='--infer --eval ContinuousEvaluator'
 readonly AVAILABLE_MEM_KB=$(cat /proc/meminfo | grep 'MemTotal' | sed 's/^[^0-9]\+\([0-9]\+\)[^0-9]\+$/\1/')
 # Floor by multiples of 5 and then reserve an additional 5 GB.

@@ -12,6 +12,7 @@ observations:
   SimilarUsers: ../data/movie/SIMILAR_USERS_NEIGHBOUR.txt
   SimilarItems: ../data/movie/SIMILAR_ITEMS_NEIGHBOUR.txt
   LocalClassifier: ../data/movie/neighbourSplit/eval/baseline_output_without_kg.txt
+  Relation: ../data/movie/relations_obs.txt
 
 targets:
   Rating: ../data/movie/neighbourSplit/eval/ratings_target_without_kg.txt

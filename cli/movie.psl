@@ -8,15 +8,15 @@
 //10: HighRatedUserMovie(user, item) -> Rating(user, item) ^2
 
 //10: HighRatedUserMovie(user1, item) & HighRatedUserMovie(user2, item) & SimilarUsers(user1, user2) -> Rating(user2, item) 
-2: Rating(User, Item1) & SimilarItems(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
-2: Rating(User1, Item) & SimilarUsers(User1, User2) & Blocking(User1, Item) & Blocking(User2, Item) -> Rating(User2, Item) ^2
-//0.1: Rating(User, Item1) & Relation(Item1, '6', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
-//0.1: Rating(User, Item1) & Relation(Item1, '5', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
-//0.001: Rating(User, Item1) & Relation(Item1, '4', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
-//0.001: Rating(User, Item1) & Relation(Item1, '3', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
-//0.1: Rating(User, Item1) & Relation(Item1, '2', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
-//0.11: Rating(User, Item1) & Relation(Item1, '1', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
-//0.1: Rating(User, Item1) & Relation(Item1, '0', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
+1: Rating(User, Item1) & SimilarItems(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
+1: Rating(User1, Item) & SimilarUsers(User1, User2) & Blocking(User1, Item) & Blocking(User2, Item) -> Rating(User2, Item) ^2
+1: Rating(User, Item1) & Relation(Item1, '6', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
+1: Rating(User, Item1) & Relation(Item1, '5', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
+1: Rating(User, Item1) & Relation(Item1, '4', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
+1: Rating(User, Item1) & Relation(Item1, '3', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
+1: Rating(User, Item1) & Relation(Item1, '2', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
+1: Rating(User, Item1) & Relation(Item1, '1', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
+1: Rating(User, Item1) & Relation(Item1, '0', Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
 //10: Rating(User, Item1) & Country(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
 //10: Rating(User, Item1) & Director(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
 //10: Rating(User, Item1) & Genre(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
@@ -24,5 +24,5 @@
 //10: Rating(User, Item1) & Rated(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
 //10: Rating(User, Item1) & Star(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
 //10: Rating(User, Item1) & Writer(Item1, Item2) & Blocking(User, Item1) & Blocking(User, Item2) -> Rating(User, Item2) ^2
-0.01: !Rating(User, Item) ^2
-10: LocalClassifier(User, Item) = Rating(User, Item) ^2
+0.001: !Rating(User, Item) ^2
+1: LocalClassifier(User, Item) = Rating(User, Item) ^2
