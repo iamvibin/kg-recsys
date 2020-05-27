@@ -17,7 +17,7 @@ from generate_blocking_target import generate_blocking_target
 from src.main import startBaseline
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--d', type=str, default='movie', help='which dataset to use')
+parser.add_argument('--d', type=str, default='book', help='which dataset to use')
 parser.add_argument('--n', type=int, default=5, help='the number of neighbors')
 parser.add_argument('--t', type=float, default=0.0, help='threshold')
 parser.add_argument('--s', type=int, default=555, help='seed value')
@@ -31,13 +31,13 @@ args = parser.parse_args()
 EVAL = 'eval'
 TRAIN = 'train'
 eval_types = [EVAL, TRAIN]
-splits = 10
-#seed_list = random.sample(range(0, 2**32-1), splits)
-seed_list = [1238879808, 2790790704, 1154929626, 867958829, 2920458158, 865877606, 1056154238, 2144527568, 1464353066, 3087242964]
+splits = 1
+seed_list = random.sample(range(0, 2**32-1), splits)
+#seed_list = [1238879808, 2790790704, 1154929626, 867958829, 2920458158, 865877606, 1056154238, 2144527568, 1464353066, 3087242964]
 path = os.getcwd()
 data_path = os.path.join(path, '..', 'data', args.d)
 
-neighbours = [2, 5]
+neighbours = [2]
 print('Creating splits for the baseline....')
 
 entity_id2index ,relation_id2index, item_index_old2new, user_cnt = reformat(args)

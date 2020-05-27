@@ -34,7 +34,7 @@ def get_baseline_output(args):
     INPUT_PATH = os.path.join(data_path, DIR, evalType, INPUT_FILE)
 
     df = pd.read_csv(INPUT_PATH, delimiter='\t', header=None, names=["users", "items", "ratings"])
-    df['ratings'] = df['ratings'] * 5
+    df['ratings'] = df['ratings'] * 10  # 5 for movie.
     df = df[list(df.columns)].astype(int)
     ratings = df.values
 
@@ -43,7 +43,7 @@ def get_baseline_output(args):
 
     # fit model
     bpmf = BPMF(n_user=n_user, n_item=n_item, n_feature=4,
-                max_rating=5., min_rating=1., seed=args.s).fit(ratings, n_iters=10)
+                max_rating=10., min_rating=0., seed=args.s).fit(ratings, n_iters=10) # 5 and 1 for movie
 
     for file_type in files:
         n_dir_name = str(neighbour).zfill(3) + '_' + str(split)
@@ -57,7 +57,7 @@ def get_baseline_output(args):
         target_matrix = df.values
 
         preds = bpmf.predict(target_matrix)
-        preds = preds / 5
+        preds = preds / 10 #5 for movie
 
         file_writer(BASELINE_OUTPUT_PATH, target_matrix, preds)
 
@@ -75,7 +75,7 @@ def run_baseline(args):
     BASELINE_OUTPUT_PATH = os.path.join(data_path, DIR, eval, OUTPUT_FILE)
 
     df = pd.read_csv(INPUT_PATH, delimiter='\t', header=None, names=["users", "items", "ratings"])
-    df['ratings'] = df['ratings'] * 5
+    df['ratings'] = df['ratings'] * 10 # 5 for movie
     df = df[list(df.columns)].astype(int)
     ratings = df.values
 
@@ -86,7 +86,7 @@ def run_baseline(args):
 
     # fit model
     bpmf = BPMF(n_user=n_user, n_item=n_item, n_feature=4,
-                max_rating=5., min_rating=1., seed=args.s).fit(ratings, n_iters=10)
+                max_rating=10., min_rating=0., seed=args.s).fit(ratings, n_iters=10) #5 , 1 for movie
     RMSE(bpmf.predict(ratings[:, :2]), ratings[:, 2])  # training RMSE
 
     df = pd.read_csv(TARGET_PATH, delimiter="\t", header=None, names=["users", "items"])
@@ -94,7 +94,7 @@ def run_baseline(args):
     target_matrix = df.values
 
     preds = bpmf.predict(target_matrix)
-    preds = preds / 5
+    preds = preds / 10 # 5 for movie
 
     file_writer(BASELINE_OUTPUT_PATH, target_matrix, preds)
 

@@ -29,7 +29,7 @@ def get_rating(args):
     path = os.path.join('..', 'data', args.d, input_file)
     output_file = 'ratings.txt'
     ratings_path = os.path.join('..', 'data', args.d, output_file)
-    max_rating = 5
+    max_rating = 10 # 5 for movie
 
     print('Converting rating file ...')
 
