@@ -17,7 +17,7 @@ from generate_blocking_target import generate_blocking_target
 from src.main import startBaseline
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--d', type=str, default='book', help='which dataset to use')
+parser.add_argument('--d', type=str, default='music', help='which dataset to use')
 parser.add_argument('--n', type=int, default=5, help='the number of neighbors')
 parser.add_argument('--t', type=float, default=0.0, help='threshold')
 parser.add_argument('--s', type=int, default=555, help='seed value')
@@ -37,7 +37,7 @@ seed_list = random.sample(range(0, 2**32-1), splits)
 path = os.getcwd()
 data_path = os.path.join(path, '..', 'data', args.d)
 
-neighbours = [2]
+neighbours = [2, 5]
 print('Creating splits for the baseline....')
 
 entity_id2index ,relation_id2index, item_index_old2new, user_cnt = reformat(args)
